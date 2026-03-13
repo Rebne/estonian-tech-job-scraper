@@ -2,7 +2,10 @@ module github.com/Rebne/scrapy_project_v2
 
 go 1.25.6
 
-require github.com/jackc/pgx/v5 v5.8.0
+require (
+	github.com/jackc/pgx/v5 v5.8.0
+	golang.org/x/net v0.52.0
+)
 
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
