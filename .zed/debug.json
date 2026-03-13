@@ -1,6 +1,7 @@
 [
   {
     "label": "Run app",
+    "mode": "debug",
     "adapter": "Delve",
     "request": "launch",
     "program": ".",
