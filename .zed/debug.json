@@ -1,0 +1,9 @@
+[
+  {
+    "label": "Run app",
+    "adapter": "Delve",
+    "request": "launch",
+    "program": ".",
+    "envFile": ".env",
+  },
+]
