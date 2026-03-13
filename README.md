@@ -5,6 +5,7 @@ Golang rewrite of scrapy_project_v1 (Python. This project scrapes Estonian IT-se
 - go
 - sqlc
 - golang-migrate
+- just
 
 ## For dev
 
