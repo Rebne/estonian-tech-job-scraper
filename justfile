@@ -1,5 +1,5 @@
 run:
-    go run main.go
+    go run cmd/main.go
 
 create-migration name:
     migrate create -seq -dir migrations -ext sql {{name}}
