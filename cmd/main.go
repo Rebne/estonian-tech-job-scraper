@@ -63,7 +63,7 @@ func NewRepository(config Config) Repository {
 func main() {
 	app := NewApp()
 	ctx := context.Background()
-	jobs, err := app.repo.jobs.ListAllJobs(ctx)
+	jobs, err := app.repo.jobs.GetAllJobs(ctx)
 	if err != nil {
 		message := fmt.Sprint("Could not list all jobs: %w", err)
 		log.Fatal(message)
