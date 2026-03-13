@@ -6,4 +6,4 @@ sql:
     gen:
       go:
         package: "jobs"
-        out: pkg/queries
+        out: pkg/sqlc
