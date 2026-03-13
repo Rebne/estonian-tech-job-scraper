@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Rebne/scrapy_project_v2/pkg/sqlc/jobs"
+	"github.com/Rebne/scrapy_project_v2/internal/sqlc/jobs"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
