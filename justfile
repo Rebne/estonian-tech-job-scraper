@@ -9,3 +9,6 @@ migrate:
 
 force-migration count:
     migrate -source file://migrations -database "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" force {{count}}
+
+run-dev-postgres:
+    docker run --name postgres-dev -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
