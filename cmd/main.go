@@ -65,7 +65,8 @@ func main() {
 	ctx := context.Background()
 	jobs, err := app.repo.jobs.ListAllJobs(ctx)
 	if err != nil {
-		log.Fatalf("Could not list all jobs: %w", err)
+		message := fmt.Sprint("Could not list all jobs: %w", err)
+		log.Fatal(message)
 	}
 	fmt.Println(jobs)
 }
