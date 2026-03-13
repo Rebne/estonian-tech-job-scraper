@@ -9,12 +9,35 @@ import (
 	"context"
 )
 
-const listAllJobs = `-- name: ListAllJobs :many
+const deleteJob = `-- name: DeleteJob :exec
+DELETE FROM jobs WHERE job_hash = $1 AND page = $2
+`
+
+type DeleteJobParams struct {
+	JobHash []byte
+	Page    string
+}
+
+func (q *Queries) DeleteJob(ctx context.Context, arg DeleteJobParams) error {
+	_, err := q.db.Exec(ctx, deleteJob, arg.JobHash, arg.Page)
+	return err
+}
+
+const deleteJobByID = `-- name: DeleteJobByID :exec
+DELETE FROM jobs WHERE id = $1
+`
+
+func (q *Queries) DeleteJobByID(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteJobByID, id)
+	return err
+}
+
+const getAllJobs = `-- name: GetAllJobs :many
 SELECT id, job_hash, page, title, created_at FROM jobs
 `
 
-func (q *Queries) ListAllJobs(ctx context.Context) ([]Job, error) {
-	rows, err := q.db.Query(ctx, listAllJobs)
+func (q *Queries) GetAllJobs(ctx context.Context) ([]Job, error) {
+	rows, err := q.db.Query(ctx, getAllJobs)
 	if err != nil {
 		return nil, err
 	}
@@ -37,4 +60,43 @@ func (q *Queries) ListAllJobs(ctx context.Context) ([]Job, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getAllTitles = `-- name: GetAllTitles :many
+SELECT title FROM jobs
+`
+
+func (q *Queries) GetAllTitles(ctx context.Context) ([]string, error) {
+	rows, err := q.db.Query(ctx, getAllTitles)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var title string
+		if err := rows.Scan(&title); err != nil {
+			return nil, err
+		}
+		items = append(items, title)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const insertJob = `-- name: InsertJob :exec
+INSERT INTO jobs (job_hash, page, title) VALUES($1, $2, $3)
+`
+
+type InsertJobParams struct {
+	JobHash []byte
+	Page    string
+	Title   string
+}
+
+func (q *Queries) InsertJob(ctx context.Context, arg InsertJobParams) error {
+	_, err := q.db.Exec(ctx, insertJob, arg.JobHash, arg.Page, arg.Title)
+	return err
 }
