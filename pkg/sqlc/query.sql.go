@@ -14,7 +14,7 @@ SELECT id, job_hash, page, title, created_at FROM jobs
 `
 
 func (q *Queries) ListAllJobs(ctx context.Context) ([]Job, error) {
-	rows, err := q.db.QueryContext(ctx, listAllJobs)
+	rows, err := q.db.Query(ctx, listAllJobs)
 	if err != nil {
 		return nil, err
 	}
@@ -32,9 +32,6 @@ func (q *Queries) ListAllJobs(ctx context.Context) ([]Job, error) {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

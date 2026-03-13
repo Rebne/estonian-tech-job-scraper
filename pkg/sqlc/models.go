@@ -5,7 +5,7 @@
 package jobs
 
 import (
-	"time"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Job struct {
@@ -13,5 +13,5 @@ type Job struct {
 	JobHash   []byte
 	Page      string
 	Title     string
-	CreatedAt time.Time
+	CreatedAt pgtype.Timestamp
 }
