@@ -14,6 +14,42 @@ type job struct {
 	url            string
 }
 
+func (j *job) Hash() []byte {
+	return j.hash
+}
+
+func (j *job) Page() string {
+	return j.page
+}
+
+func (j *job) Title() string {
+	return j.title
+}
+
+func (j *job) Company() string {
+	return j.company
+}
+
+func (j *job) Location() string {
+	return j.location
+}
+
+func (j *job) Description() string {
+	return j.description
+}
+
+func (j *job) EmploymentType() string {
+	return j.employmentType
+}
+
+func (j *job) Category() string {
+	return j.category
+}
+
+func (j *job) URL() string {
+	return j.url
+}
+
 type JobBuilder struct {
 	job *job
 }
