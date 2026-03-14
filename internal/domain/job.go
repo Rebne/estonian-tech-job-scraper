@@ -5,18 +5,6 @@ import (
 	"strings"
 )
 
-type Job interface {
-	Hash() []byte
-	Page() string
-	Title() string
-	Company() string
-	Location() string
-	Description() string
-	EmploymentType() string
-	Category() string
-	URL() string
-}
-
 type HashField string
 
 const (
@@ -30,7 +18,7 @@ const (
 	HashFieldURL            HashField = "url"
 )
 
-type job struct {
+type Job struct {
 	hash           []byte
 	page           string
 	title          string
@@ -42,52 +30,52 @@ type job struct {
 	url            string
 }
 
-func (j *job) Hash() []byte {
+func (j *Job) Hash() []byte {
 	return j.hash
 }
 
-func (j *job) Page() string {
+func (j *Job) Page() string {
 	return j.page
 }
 
-func (j *job) Title() string {
+func (j *Job) Title() string {
 	return j.title
 }
 
-func (j *job) Company() string {
+func (j *Job) Company() string {
 	return j.company
 }
 
-func (j *job) Location() string {
+func (j *Job) Location() string {
 	return j.location
 }
 
-func (j *job) Description() string {
+func (j *Job) Description() string {
 	return j.description
 }
 
-func (j *job) EmploymentType() string {
+func (j *Job) EmploymentType() string {
 	return j.employmentType
 }
 
-func (j *job) Category() string {
+func (j *Job) Category() string {
 	return j.category
 }
 
-func (j *job) URL() string {
+func (j *Job) URL() string {
 	return j.url
 }
 
 type jobBuilder struct {
-	job *job
+	job *Job
 }
 
 func NewJobBuilder() *jobBuilder {
-	return &jobBuilder{job: &job{}}
+	return &jobBuilder{job: &Job{}}
 }
 
 func (jb *jobBuilder) Build() Job {
-	return jb.job
+	return *jb.job
 }
 
 func (jb *jobBuilder) WithURL(url string) *jobBuilder {
