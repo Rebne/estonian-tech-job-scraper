@@ -1,3 +1,5 @@
 package fetcher
 
-type HTMLRetriever func(url string) (string, error)
+import "context"
+
+type HTMLRetriever func(context context.Context, url string) (string, error)

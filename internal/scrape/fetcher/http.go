@@ -1,12 +1,18 @@
 package fetcher
 
 import (
+	"context"
 	"io"
 	"net/http"
 )
 
-func FetchHTMLByHTTP(url string) (string, error) {
-	resp, err := http.Get(url)
+func FetchHTMLByHTTP(ctx context.Context, url string) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", err
 	}

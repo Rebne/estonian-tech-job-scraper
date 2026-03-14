@@ -26,8 +26,8 @@ func NewCgiScraper() *cgiScraper {
 	}
 }
 
-	html, err := cs.retriever(cs.url)
 func (cs *cgiScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+	html, err := cs.retriever(ctx, cs.url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve CGI html: %w", err)
 	}
