@@ -1,6 +1,10 @@
 package models
 
-import "crypto/sha256"
+import (
+	"crypto/sha256"
+	"strings"
+)
+
 type Job interface {
 	Hash() []byte
 	Page() string
@@ -13,6 +17,18 @@ type Job interface {
 	URL() string
 }
 
+type HashField string
+
+const (
+	HashFieldPage           HashField = "page"
+	HashFieldTitle          HashField = "title"
+	HashFieldCompany        HashField = "company"
+	HashFieldLocation       HashField = "location"
+	HashFieldDescription    HashField = "description"
+	HashFieldEmploymentType HashField = "employment_type"
+	HashFieldCategory       HashField = "category"
+	HashFieldURL            HashField = "url"
+)
 
 type job struct {
 	hash           []byte
@@ -122,4 +138,43 @@ func (jb *jobBuilder) WithUniqueIdentifier(identifier string) *jobBuilder {
 	sum := sha256.Sum256([]byte(identifier))
 	jb.job.hash = sum[:]
 	return jb
+}
+
+func (jb *jobBuilder) WithHashFrom(fields ...HashField) *jobBuilder {
+
+	parts := make([]string, 0, len(fields))
+	for _, field := range fields {
+		parts = append(parts, normalizeHashValue(jb.valueForField(field)))
+	}
+
+	sum := sha256.Sum256([]byte(strings.Join(parts, "\x1f")))
+	jb.job.hash = sum[:]
+	return jb
+}
+
+func (jb *jobBuilder) valueForField(field HashField) string {
+	switch field {
+	case HashFieldPage:
+		return jb.job.page
+	case HashFieldTitle:
+		return jb.job.title
+	case HashFieldCompany:
+		return jb.job.company
+	case HashFieldLocation:
+		return jb.job.location
+	case HashFieldDescription:
+		return jb.job.description
+	case HashFieldEmploymentType:
+		return jb.job.employmentType
+	case HashFieldCategory:
+		return jb.job.category
+	case HashFieldURL:
+		return jb.job.url
+	default:
+		return ""
+	}
+}
+
+func normalizeHashValue(value string) string {
+	return strings.ToLower(strings.TrimSpace(value))
 }
