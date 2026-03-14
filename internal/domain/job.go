@@ -125,10 +125,6 @@ func (jb *jobBuilder) WithTitle(title string) *jobBuilder {
 	return jb
 }
 
-func (jb *jobBuilder) WithTile(title string) *jobBuilder {
-	return jb.WithTitle(title)
-}
-
 func (jb *jobBuilder) WithPage(page string) *jobBuilder {
 	jb.job.page = page
 	return jb
