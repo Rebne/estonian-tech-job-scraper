@@ -42,6 +42,17 @@ func (TitleIncludeFilter) Ok(job models.Job) bool {
 	return false
 }
 
+type TitleExcludeFilter struct{}
+
+func (TitleExcludeFilter) Ok(job models.Job) bool {
+	for _, key := range excludeKeywords {
+		if found := strings.Contains(job.Title(), key); found {
+			return false
+		}
+	}
+	return true
+}
+
 var excludeKeywords = []string{
 	"staff",
 	"lektor",
