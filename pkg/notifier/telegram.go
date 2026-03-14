@@ -13,41 +13,31 @@ import (
 const MAX_LENGTH = 4096
 
 var ErrInvalidHTML = errors.New("invalid HTML")
+var ErrNoMessages = errors.New("messages are empty")
 
 type telegramNotifier struct {
-	messagesHTML []string
-	config       *telegramNotifierConfig
-}
-
-type telegramNotifierConfig struct {
 	botToken string
 	chatID   string
 }
 
-func NewTelegramNotifier(messagesHTML []string, config *telegramNotifierConfig) (*telegramNotifier, error) {
-	for _, message := range messagesHTML {
-		if !isParseableHTML(message) {
-			return nil, ErrInvalidHTML
-		}
-	}
+func NewTelegramNotifier(botToken, chatID string) *telegramNotifier {
 	return &telegramNotifier{
-		messagesHTML,
-		config,
-	}, nil
-}
-
-func NewTelegramNotifierConfig(botToken, chatID string) *telegramNotifierConfig {
-	return &telegramNotifierConfig{
 		botToken,
 		chatID,
 	}
 }
 
-func (tn *telegramNotifier) Notify() error {
-	if len(tn.messagesHTML) == 0 {
-		return nil
+func (tn *telegramNotifier) Notify(messagesHTML []string) error {
+	if len(messagesHTML) == 0 {
+		return ErrNoMessages
 	}
-	for _, message := range chunk(tn.messagesHTML) {
+	for _, message := range messagesHTML {
+		if !isParseableHTML(message) {
+			return ErrInvalidHTML
+		}
+	}
+
+	for _, message := range chunk(messagesHTML) {
 		if err := tn.sendTelegramMessage(message); err != nil {
 			return fmt.Errorf("failed to send telegram message: %w", err)
 		}
@@ -59,11 +49,11 @@ func (tn *telegramNotifier) Notify() error {
 func (tn *telegramNotifier) sendTelegramMessage(message string) error {
 	endpoint := fmt.Sprintf(
 		"https://api.telegram.org/bot%s/sendMessage",
-		tn.config.botToken,
+		tn.botToken,
 	)
 
 	data := url.Values{}
-	data.Set("chat_id", tn.config.chatID)
+	data.Set("chat_id", tn.chatID)
 	data.Set("parse_mode", "HTML")
 	data.Set("text", message)
 
