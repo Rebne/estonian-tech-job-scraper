@@ -1,4 +1,4 @@
-package scrapers
+package sources
 
 import (
 	"context"
