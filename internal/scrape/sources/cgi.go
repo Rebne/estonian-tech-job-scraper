@@ -1,6 +1,7 @@
 package scrapers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"regexp"
@@ -25,8 +26,8 @@ func NewCgiScraper() *cgiScraper {
 	}
 }
 
-func (cs *cgiScraper) GetJobs() ([]domain.Job, error) {
 	html, err := cs.retriever(cs.url)
+func (cs *cgiScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve CGI html: %w", err)
 	}
