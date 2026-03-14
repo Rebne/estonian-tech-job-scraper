@@ -62,55 +62,63 @@ func (j *job) URL() string {
 	return j.url
 }
 
-type JobBuilder struct {
+type jobBuilder struct {
 	job *job
 }
 
-func (jb *JobBuilder) Build() *job {
+func NewJobBuilder() *jobBuilder {
+	return &jobBuilder{job: &job{}}
+}
+
+func (jb *jobBuilder) Build() Job {
 	return jb.job
 }
 
-func (jb *JobBuilder) WithURL(url string) *JobBuilder {
+func (jb *jobBuilder) WithURL(url string) *jobBuilder {
 	jb.job.url = url
 	return jb
 }
 
-func (jb *JobBuilder) WithCategory(category string) *JobBuilder {
+func (jb *jobBuilder) WithCategory(category string) *jobBuilder {
 	jb.job.category = category
 	return jb
 }
 
-func (jb *JobBuilder) WithEmploymentType(employmentType string) *JobBuilder {
+func (jb *jobBuilder) WithEmploymentType(employmentType string) *jobBuilder {
 	jb.job.employmentType = employmentType
 	return jb
 }
 
-func (jb *JobBuilder) WithDescription(description string) *JobBuilder {
+func (jb *jobBuilder) WithDescription(description string) *jobBuilder {
 	jb.job.description = description
 	return jb
 }
 
-func (jb *JobBuilder) WithLocation(location string) *JobBuilder {
+func (jb *jobBuilder) WithLocation(location string) *jobBuilder {
 	jb.job.location = location
 	return jb
 }
 
-func (jb *JobBuilder) WithCompany(company string) *JobBuilder {
+func (jb *jobBuilder) WithCompany(company string) *jobBuilder {
 	jb.job.company = company
 	return jb
 }
 
-func (jb *JobBuilder) WithTile(title string) *JobBuilder {
+func (jb *jobBuilder) WithTitle(title string) *jobBuilder {
 	jb.job.title = title
 	return jb
 }
 
-func (jb *JobBuilder) WithPage(page string) *JobBuilder {
+func (jb *jobBuilder) WithTile(title string) *jobBuilder {
+	return jb.WithTitle(title)
+}
+
+func (jb *jobBuilder) WithPage(page string) *jobBuilder {
 	jb.job.page = page
 	return jb
 }
 
-func (jb *JobBuilder) WithUniqueIdentifier(identifier string) *JobBuilder {
+func (jb *jobBuilder) WithUniqueIdentifier(identifier string) *jobBuilder {
 	sum := sha256.Sum256([]byte(identifier))
 	jb.job.hash = sum[:]
 	return jb
