@@ -4,11 +4,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Rebne/scrapy_project_v2/internal/models"
+	"github.com/Rebne/scrapy_project_v2/internal/domain"
 )
 
 type JobFilter interface {
-	Ok(job models.Job) bool
+	Ok(job domain.Job) bool
 }
 
 type jobFilterChain struct {
@@ -24,7 +24,7 @@ func (jfc *jobFilterChain) Add(filter JobFilter) *jobFilterChain {
 	return jfc
 }
 
-func (jfc jobFilterChain) Execute(job models.Job) bool {
+func (jfc jobFilterChain) Execute(job domain.Job) bool {
 	for _, filter := range jfc.filters {
 		if !filter.Ok(job) {
 			return false
@@ -36,7 +36,7 @@ func (jfc jobFilterChain) Execute(job models.Job) bool {
 
 type TitleIncludeFilter struct{}
 
-func (TitleIncludeFilter) Ok(job models.Job) bool {
+func (TitleIncludeFilter) Ok(job domain.Job) bool {
 	for _, key := range includeKeywords {
 		if found := strings.Contains(job.Title(), key); found {
 			return true
@@ -47,7 +47,7 @@ func (TitleIncludeFilter) Ok(job models.Job) bool {
 
 type TitleExcludeFilter struct{}
 
-func (TitleExcludeFilter) Ok(job models.Job) bool {
+func (TitleExcludeFilter) Ok(job domain.Job) bool {
 	for _, key := range excludeKeywords {
 		if found := strings.Contains(job.Title(), key); found {
 			return false
@@ -58,7 +58,7 @@ func (TitleExcludeFilter) Ok(job models.Job) bool {
 
 type LocationEstoniaFilter struct{}
 
-func (LocationEstoniaFilter) Ok(job models.Job) bool {
+func (LocationEstoniaFilter) Ok(job domain.Job) bool {
 	re := regexp.MustCompile(`(?i)estonia|tallinn|tartu`)
 	return re.MatchString(job.Location())
 }
