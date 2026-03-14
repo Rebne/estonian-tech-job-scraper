@@ -19,6 +19,11 @@ type telegramNotifier struct {
 	config       *telegramNotifierConfig
 }
 
+type telegramNotifierConfig struct {
+	botToken string
+	chatID   string
+}
+
 func NewTelegramNotifier(messagesHTML []string, config *telegramNotifierConfig) (*telegramNotifier, error) {
 	for _, message := range messagesHTML {
 		if !isParseableHTML(message) {
@@ -29,11 +34,6 @@ func NewTelegramNotifier(messagesHTML []string, config *telegramNotifierConfig) 
 		messagesHTML,
 		config,
 	}, nil
-}
-
-type telegramNotifierConfig struct {
-	botToken string
-	chatID   string
 }
 
 func NewTelegramNotifierConfig(botToken, chatID string) *telegramNotifierConfig {
