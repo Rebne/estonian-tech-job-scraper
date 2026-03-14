@@ -7,6 +7,29 @@ type JobFilter interface {
 	Ok(job models.Job) bool
 }
 
+type jobFilterChain struct {
+	filters []JobFilter
+}
+
+func NewJobFilterChain(filters ...JobFilter) jobFilterChain {
+	return jobFilterChain{filters: filters}
+}
+
+func (jfc *jobFilterChain) Add(filter JobFilter) *jobFilterChain {
+	jfc.filters = append(jfc.filters, filter)
+	return jfc
+}
+
+func (jfc jobFilterChain) Execute(job models.Job) bool {
+	for _, filter := range jfc.filters {
+		if !filter.Ok(job) {
+			return false
+		}
+	}
+
+	return true
+}
+
 var excludeKeywords = []string{
 	"staff",
 	"lektor",
