@@ -1,5 +1,5 @@
 package notifier
 
 type Notifier interface {
-	Notify() error
+	Notify(messages []string) error
 }
