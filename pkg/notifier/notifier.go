@@ -1,5 +1,5 @@
 package notifier
 
-type INotifier interface {
+type Notifier interface {
 	Notify() error
 }
