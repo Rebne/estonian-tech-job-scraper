@@ -12,24 +12,24 @@ type JobFilter interface {
 }
 
 type JobFilterChain interface {
-	Add(filter JobFilter) *JobFilterChain
-	Execute(job domain.Job)
+	Add(filter JobFilter) JobFilterChain
+	Execute(job domain.Job) bool
 }
 
 type jobFilterChain struct {
 	filters []JobFilter
 }
 
-func NewJobFilterChain() jobFilterChain {
-	return jobFilterChain{filters: []JobFilter{}}
+func NewJobFilterChain() *jobFilterChain {
+	return &jobFilterChain{filters: []JobFilter{}}
 }
 
-func (jfc *jobFilterChain) Add(filter JobFilter) *jobFilterChain {
+func (jfc *jobFilterChain) Add(filter JobFilter) JobFilterChain {
 	jfc.filters = append(jfc.filters, filter)
 	return jfc
 }
 
-func (jfc jobFilterChain) Execute(job domain.Job) bool {
+func (jfc *jobFilterChain) Execute(job domain.Job) bool {
 	for _, filter := range jfc.filters {
 		if !filter.Ok(job) {
 			return false
