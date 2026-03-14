@@ -3,6 +3,7 @@ package jobfilter
 import (
 	"github.com/Rebne/scrapy_project_v2/internal/models"
 )
+
 type JobFilter interface {
 	Ok(job models.Job) bool
 }
@@ -28,6 +29,17 @@ func (jfc jobFilterChain) Execute(job models.Job) bool {
 	}
 
 	return true
+}
+
+type TitleIncludeFilter struct{}
+
+func (TitleIncludeFilter) Ok(job models.Job) bool {
+	for _, key := range includeKeywords {
+		if found := strings.Contains(job.Title(), key); found {
+			return true
+		}
+	}
+	return false
 }
 
 var excludeKeywords = []string{
