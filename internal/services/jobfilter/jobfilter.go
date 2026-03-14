@@ -13,7 +13,7 @@ type JobFilter interface {
 
 type JobFilterChain interface {
 	Add(filter JobFilter) JobFilterChain
-	Execute(job domain.Job) bool
+	Match(job domain.Job) bool
 }
 
 type jobFilterChain struct {
@@ -29,7 +29,7 @@ func (jfc *jobFilterChain) Add(filter JobFilter) JobFilterChain {
 	return jfc
 }
 
-func (jfc *jobFilterChain) Execute(job domain.Job) bool {
+func (jfc *jobFilterChain) Match(job domain.Job) bool {
 	for _, filter := range jfc.filters {
 		if !filter.Ok(job) {
 			return false
