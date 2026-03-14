@@ -15,19 +15,17 @@ const MAX_LENGTH = 4096
 var ErrInvalidHTML = errors.New("invalid HTML")
 
 type telegramNotifier struct {
-	notifier     INotifier
 	messagesHTML []string
 	config       *telegramNotifierConfig
 }
 
-func NewTelegramNotifier(notifier INotifier, messagesHTML []string, config *telegramNotifierConfig) (*telegramNotifier, error) {
+func NewTelegramNotifier(messagesHTML []string, config *telegramNotifierConfig) (*telegramNotifier, error) {
 	for _, message := range messagesHTML {
 		if !isParseableHTML(message) {
 			return nil, ErrInvalidHTML
 		}
 	}
 	return &telegramNotifier{
-		notifier,
 		messagesHTML,
 		config,
 	}, nil
@@ -46,7 +44,6 @@ func NewTelegramNotifierConfig(botToken, chatID string) *telegramNotifierConfig 
 }
 
 func (tn *telegramNotifier) Notify() error {
-	defer tn.notifier.Notify()
 	if len(tn.messagesHTML) == 0 {
 		return nil
 	}
