@@ -10,6 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
 const URL string = "https://cgi.njoyn.com/corp/xweb/xweb.asp?CLID=21001&page=joblisting&CountryID=EE"
@@ -17,12 +18,18 @@ const URL string = "https://cgi.njoyn.com/corp/xweb/xweb.asp?CLID=21001&page=job
 type cgiScraper struct {
 	url       string
 	retriever fetcher.HTMLRetriever
+	filters   jobfilter.JobFilterChain
 }
 
 func NewCgiScraper() *cgiScraper {
+	filterChain := jobfilter.NewJobFilterChain().
+		Add(jobfilter.LocationEstoniaFilter{}).
+		Add(jobfilter.TitleIncludeFilter{}).
+		Add(jobfilter.TitleExcludeFilter{})
 	return &cgiScraper{
 		url:       URL,
 		retriever: fetcher.FetchHTMLByHTTP,
+		filters:   filterChain,
 	}
 }
 
@@ -35,7 +42,17 @@ func (cs *cgiScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse CGI jobs: %w", err)
 	}
-	return jobs, nil
+	return cs.filterJobs(jobs), nil
+}
+
+func (cs *cgiScraper) filterJobs(jobs []domain.Job) []domain.Job {
+	var result []domain.Job
+	for _, job := range jobs {
+		if cs.filters.Match(job) {
+			result = append(result, job)
+		}
+	}
+	return result
 }
 
 func (cs *cgiScraper) parseJobs(html string) ([]domain.Job, error) {
