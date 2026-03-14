@@ -1,6 +1,9 @@
 package jobfilter
 
 import (
+	"regexp"
+	"strings"
+
 	"github.com/Rebne/scrapy_project_v2/internal/models"
 )
 
@@ -51,6 +54,13 @@ func (TitleExcludeFilter) Ok(job models.Job) bool {
 		}
 	}
 	return true
+}
+
+type LocationEstoniaFilter struct{}
+
+func (LocationEstoniaFilter) Ok(job models.Job) bool {
+	re := regexp.MustCompile(`(?i)estonia|tallinn|tartu`)
+	return re.MatchString(job.Location())
 }
 
 var excludeKeywords = []string{
