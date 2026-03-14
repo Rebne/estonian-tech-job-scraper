@@ -1,0 +1,83 @@
+package scrapers
+
+import (
+	"errors"
+	"fmt"
+	"regexp"
+	"strings"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+)
+
+const URL string = "https://cgi.njoyn.com/corp/xweb/xweb.asp?CLID=21001"
+
+type cgiScraper struct {
+	url       string
+	retriever fetcher.HTMLRetriever
+}
+
+func NewCgiScraper() *cgiScraper {
+	return &cgiScraper{
+		url:       URL,
+		retriever: fetcher.FetchHTMLByHTTP,
+	}
+}
+
+func (cs *cgiScraper) GetJobs() ([]domain.Job, error) {
+	html, err := cs.retriever(cs.url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve CGI html: %w", err)
+	}
+	jobs, err := cs.parseJobs(html)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse CGI jobs: %w", err)
+	}
+	return jobs, nil
+}
+
+func (cs *cgiScraper) parseJobs(html string) ([]domain.Job, error) {
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(html))
+	if err != nil {
+		return nil, err
+	}
+
+	var result []domain.Job
+
+	// Select all table rows except the header
+	rows := doc.Find("tr").Slice(1, goquery.ToEnd)
+
+	if rows.Length() == 0 {
+		return nil, errors.New("Something wrong with CGI scraper. No items found.")
+	}
+
+	categoryRegex := regexp.MustCompile(`(?i)Software Development`)
+
+	rows.Each(func(i int, row *goquery.Selection) {
+		cols := row.Find("td")
+
+		if cols.Length() < 5 {
+			return
+		}
+
+		title := strings.TrimSpace(cols.Eq(1).Text())
+		category := strings.TrimSpace(cols.Eq(2).Text())
+		location := strings.TrimSpace(
+			cols.Eq(3).Text() + " " + cols.Eq(4).Text(),
+		)
+
+		if categoryRegex.MatchString(category) {
+			job := domain.
+				NewJobBuilder().
+				WithTitle(title).
+				WithLocation(location).
+				WithCategory(category).
+				WithHashFrom(domain.HashFieldTitle).
+				Build()
+			result = append(result, job)
+		}
+	})
+
+	return result, nil
+}
