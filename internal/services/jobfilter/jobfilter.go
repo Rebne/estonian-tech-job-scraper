@@ -11,12 +11,17 @@ type JobFilter interface {
 	Ok(job domain.Job) bool
 }
 
+type JobFilterChain interface {
+	Add(filter JobFilter) *JobFilterChain
+	Execute(job domain.Job)
+}
+
 type jobFilterChain struct {
 	filters []JobFilter
 }
 
-func NewJobFilterChain(filters ...JobFilter) jobFilterChain {
-	return jobFilterChain{filters: filters}
+func NewJobFilterChain() jobFilterChain {
+	return jobFilterChain{filters: []JobFilter{}}
 }
 
 func (jfc *jobFilterChain) Add(filter JobFilter) *jobFilterChain {
