@@ -2,9 +2,9 @@ version: "2"
 sql:
   - engine: "postgresql"
     schema: "migrations"
-    queries: "internal/sqlc/query.sql"
+    queries: "internal/repository/sqlc/query.sql"
     gen:
       go:
         package: "jobs"
-        out: "internal/sqlc/jobs"
+        out: "internal/repository/sqlc/jobs"
         sql_package: "pgx/v5"
