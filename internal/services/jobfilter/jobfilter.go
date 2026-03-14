@@ -1,5 +1,12 @@
 package jobfilter
 
+import (
+	"github.com/Rebne/scrapy_project_v2/internal/models"
+)
+type JobFilter interface {
+	Ok(job models.Job) bool
+}
+
 var excludeKeywords = []string{
 	"staff",
 	"lektor",
