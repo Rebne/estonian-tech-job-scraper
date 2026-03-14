@@ -1,6 +1,18 @@
 package models
 
 import "crypto/sha256"
+type Job interface {
+	Hash() []byte
+	Page() string
+	Title() string
+	Company() string
+	Location() string
+	Description() string
+	EmploymentType() string
+	Category() string
+	URL() string
+}
+
 
 type job struct {
 	hash           []byte
