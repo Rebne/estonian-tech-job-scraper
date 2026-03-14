@@ -12,7 +12,7 @@ import (
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 )
 
-const URL string = "https://cgi.njoyn.com/corp/xweb/xweb.asp?CLID=21001"
+const URL string = "https://cgi.njoyn.com/corp/xweb/xweb.asp?CLID=21001&page=joblisting&CountryID=EE"
 
 type cgiScraper struct {
 	url       string
