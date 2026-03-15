@@ -56,7 +56,7 @@ func (r *Runner) scrapeSync(ctx context.Context) ([]domain.Job, error) {
 	for _, scraper := range r.scrapers {
 		jobs, err := scraper.GetJobs(ctx)
 		if err != nil {
-			scrapeErrors = append(scrapeErrors, fmt.Errorf("scraping jobs failed: %w", err))
+			scrapeErrors = append(scrapeErrors, fmt.Errorf("scraper %q failed: %w", scraper.Name(), err))
 			continue
 		}
 		result = append(result, jobs...)
@@ -84,7 +84,7 @@ func (r *Runner) scrapeAsync(ctx context.Context) ([]domain.Job, error) {
 			scrapedJobs, err := scraper.GetJobs(ctx)
 			if err != nil {
 				mu.Lock()
-				scrapeErrors = append(scrapeErrors, fmt.Errorf("scraping jobs failed: %w", err))
+				scrapeErrors = append(scrapeErrors, fmt.Errorf("scraper %q failed: %w", scraper.Name(), err))
 				mu.Unlock()
 				return
 			}
