@@ -12,20 +12,27 @@ import (
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobformatter"
 	"github.com/Rebne/scrapy_project_v2/pkg/notifier"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Runner struct {
 	scrapers  []scrape.Scraper
+	db        *pgxpool.Pool
 	repo      *jobs.Queries
 	formatter jobformatter.JobFormatter
 	notifier  notifier.Notifier
 }
 
-func NewRunner(config Config, db jobs.DBTX) *Runner {
+func NewRunner(config Config) *Runner {
+	db, err := newDB(config.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
 	return &Runner{
 		scrapers: []scrape.Scraper{
 			sources.NewCgiScraper(),
 		},
+		db:        db,
 		repo:      jobs.New(db),
 		formatter: jobformatter.NewTelegramHTMLFormatter(),
 		notifier:  notifier.NewTelegramNotifier(config.TelegramBotToken, config.TelegramChatID),
@@ -150,4 +157,16 @@ func (r *Runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job)
 	}
 
 	return nil
+}
+
+func newDB(url string) (*pgxpool.Pool, error) {
+	pool, err := pgxpool.New(context.Background(), url)
+	if err != nil {
+		return nil, fmt.Errorf("cannot connect to database: %w", err)
+	}
+
+	if err := pool.Ping(context.Background()); err != nil {
+		return nil, fmt.Errorf("database unreachable: :%w", err)
+	}
+	return pool, nil
 }
