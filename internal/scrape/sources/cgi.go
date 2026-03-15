@@ -21,6 +21,10 @@ type cgiScraper struct {
 	filters   jobfilter.JobFilterChain
 }
 
+func (cs *cgiScraper) Name() string {
+	return "cgi"
+}
+
 func NewCgiScraper() *cgiScraper {
 	filterChain := jobfilter.NewJobFilterChain().
 		Add(jobfilter.LocationEstoniaFilter{}).
