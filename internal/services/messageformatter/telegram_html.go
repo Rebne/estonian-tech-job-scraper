@@ -55,6 +55,10 @@ func (f *TelegramHTMLFormatter) FormatJobs(jobs []domain.Job) ([]string, error) 
 }
 
 func (f *TelegramHTMLFormatter) FormatJob(job domain.Job) (string, error) {
+	return f.formatJob(job)
+}
+
+func (f *TelegramHTMLFormatter) formatJob(job domain.Job) (string, error) {
 	data := telegramTemplateData{
 		Title:          strings.TrimSpace(job.Title()),
 		Location:       strings.TrimSpace(job.Location()),
