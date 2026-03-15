@@ -10,14 +10,14 @@ import (
 	"github.com/Rebne/scrapy_project_v2/internal/repository/sqlc/jobs"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources"
-	"github.com/Rebne/scrapy_project_v2/internal/services/messageformatter"
+	"github.com/Rebne/scrapy_project_v2/internal/services/jobformatter"
 	"github.com/Rebne/scrapy_project_v2/pkg/notifier"
 )
 
 type Runner struct {
 	scrapers  []scrape.Scraper
 	repo      *jobs.Queries
-	formatter messageformatter.JobFormatter
+	formatter jobformatter.JobFormatter
 	notifier  notifier.Notifier
 }
 
@@ -27,7 +27,7 @@ func NewRunner(config Config, db jobs.DBTX) *Runner {
 			sources.NewCgiScraper(),
 		},
 		repo:      jobs.New(db),
-		formatter: messageformatter.NewTelegramHTMLFormatter(),
+		formatter: jobformatter.NewTelegramHTMLFormatter(),
 		notifier:  notifier.NewTelegramNotifier(config.TelegramBotToken, config.TelegramChatID),
 	}
 }
