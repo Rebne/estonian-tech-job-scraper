@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/repository/sqlc/jobs"
@@ -42,6 +43,13 @@ func (r *Runner) RunSync(ctx context.Context) error {
 	return errors.Join(scrapeErr, persistErr)
 }
 
+func (r *Runner) RunAsync(ctx context.Context) error {
+	scrapedJobs, scrapeErr := r.scrapeAsync(ctx)
+	persistErr := r.persistAndNotify(ctx, scrapedJobs)
+
+	return errors.Join(scrapeErr, persistErr)
+}
+
 func (r *Runner) scrapeSync(ctx context.Context) ([]domain.Job, error) {
 	result := make([]domain.Job, 0)
 	scrapeErrors := make([]error, 0)
@@ -53,6 +61,40 @@ func (r *Runner) scrapeSync(ctx context.Context) ([]domain.Job, error) {
 		}
 		result = append(result, jobs...)
 	}
+
+	if len(scrapeErrors) > 0 {
+		return result, errors.Join(scrapeErrors...)
+	}
+
+	return result, nil
+}
+
+func (r *Runner) scrapeAsync(ctx context.Context) ([]domain.Job, error) {
+	result := make([]domain.Job, 0)
+	var mu sync.Mutex
+	scrapeErrors := make([]error, 0)
+
+	var wg sync.WaitGroup
+	for _, scraper := range r.scrapers {
+		scraper := scraper
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			scrapedJobs, err := scraper.GetJobs(ctx)
+			if err != nil {
+				mu.Lock()
+				scrapeErrors = append(scrapeErrors, fmt.Errorf("scraping jobs failed: %w", err))
+				mu.Unlock()
+				return
+			}
+
+			mu.Lock()
+			result = append(result, scrapedJobs...)
+			mu.Unlock()
+		}()
+	}
+	wg.Wait()
 
 	if len(scrapeErrors) > 0 {
 		return result, errors.Join(scrapeErrors...)
