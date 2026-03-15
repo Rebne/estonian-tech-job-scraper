@@ -14,4 +14,6 @@ type Job struct {
 	Page      string
 	Title     string
 	CreatedAt pgtype.Timestamp
+	Deleted   bool
+	DeletedAt pgtype.Timestamp
 }
