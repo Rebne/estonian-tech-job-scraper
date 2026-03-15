@@ -9,8 +9,26 @@ import (
 	"context"
 )
 
+const deleteJob = `-- name: DeleteJob :exec
+UPDATE jobs
+SET deleted = TRUE,
+    deleted_at = NOW()
+WHERE
+    job_hash = $1 AND
+    deleted = FALSE
+`
+
+func (q *Queries) DeleteJob(ctx context.Context, jobHash []byte) error {
+	_, err := q.db.Exec(ctx, deleteJob, jobHash)
+	return err
+}
+
 const getAllJobs = `-- name: GetAllJobs :many
-SELECT id, job_hash, page, title, created_at, deleted, deleted_at FROM jobs
+SELECT id, job_hash, page, title, created_at, deleted, deleted_at
+FROM
+    jobs
+WHERE
+    deleted <> FALSE
 `
 
 func (q *Queries) GetAllJobs(ctx context.Context) ([]Job, error) {
@@ -42,7 +60,8 @@ func (q *Queries) GetAllJobs(ctx context.Context) ([]Job, error) {
 }
 
 const insertJob = `-- name: InsertJob :exec
-INSERT INTO jobs (job_hash, page, title) VALUES($1, $2, $3)
+INSERT INTO jobs (job_hash, page, title)
+VALUES($1, $2, $3)
 `
 
 type InsertJobParams struct {
