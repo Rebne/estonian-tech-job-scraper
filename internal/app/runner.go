@@ -77,10 +77,7 @@ func (r *Runner) scrapeAsync(ctx context.Context) ([]domain.Job, error) {
 	var wg sync.WaitGroup
 	for _, scraper := range r.scrapers {
 		scraper := scraper
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
+		wg.Go(func() {
 			scrapedJobs, err := scraper.GetJobs(ctx)
 			if err != nil {
 				mu.Lock()
@@ -92,7 +89,7 @@ func (r *Runner) scrapeAsync(ctx context.Context) ([]domain.Job, error) {
 			mu.Lock()
 			result = append(result, scrapedJobs...)
 			mu.Unlock()
-		}()
+		})
 	}
 	wg.Wait()
 
