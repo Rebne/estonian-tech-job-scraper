@@ -113,9 +113,9 @@ func (r *Runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job)
 		return fmt.Errorf("loading existing jobs failed: %w", err)
 	}
 
-	existingKeys := make(map[string]struct{}, len(existingJobs))
+	existingKeys := make(map[string]bool, len(existingJobs))
 	for _, existingJob := range existingJobs {
-		existingKeys[string(existingJob.JobHash)] = struct{}{}
+		existingKeys[string(existingJob.JobHash)] = true
 	}
 
 	messages := make([]string, 0)
@@ -133,7 +133,7 @@ func (r *Runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job)
 			return fmt.Errorf("inserting job failed: %w", err)
 		}
 
-		existingKeys[key] = struct{}{}
+		existingKeys[key] = true
 		messages = append(messages, r.formatter.MustFormatJob(scrapedJob))
 	}
 
