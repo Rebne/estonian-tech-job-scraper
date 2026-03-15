@@ -134,6 +134,13 @@ func (r *Runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job)
 		messages = append(messages, r.formatter.MustFormatJob(scrapedJob))
 	}
 
+	// Delete job if it is no longer scraped from the web
+	for _, job := range existingJobs {
+		if relevant := existingKeys[string(job.JobHash)]; !relevant {
+			r.repo.DeleteJob(ctx, job.JobHash)
+		}
+	}
+
 	if len(messages) == 0 {
 		return nil
 	}
