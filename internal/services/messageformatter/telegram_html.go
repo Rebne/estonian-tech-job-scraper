@@ -11,6 +11,7 @@ import (
 
 type JobFormatter interface {
 	FormatJobs(jobs []domain.Job) ([]string, error)
+	FormatJob(job domain.Job) (string, error)
 }
 
 type TelegramHTMLFormatter struct {
