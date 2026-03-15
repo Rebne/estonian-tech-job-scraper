@@ -12,6 +12,7 @@ import (
 type JobFormatter interface {
 	FormatJobs(jobs []domain.Job) ([]string, error)
 	FormatJob(job domain.Job) (string, error)
+	MustFormatJob(job domain.Job) string
 }
 
 type TelegramHTMLFormatter struct {
@@ -56,6 +57,14 @@ func (f *TelegramHTMLFormatter) FormatJobs(jobs []domain.Job) ([]string, error) 
 
 func (f *TelegramHTMLFormatter) FormatJob(job domain.Job) (string, error) {
 	return f.formatJob(job)
+}
+
+func (f *TelegramHTMLFormatter) MustFormatJob(job domain.Job) string {
+	result, err := f.formatJob(job)
+	if err != nil {
+		panic(err)
+	}
+	return result
 }
 
 func (f *TelegramHTMLFormatter) formatJob(job domain.Job) (string, error) {
