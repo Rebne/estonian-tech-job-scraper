@@ -7,6 +7,11 @@ Golang rewrite of scrapy_project_v1 (Python. This project scrapes Estonian IT-se
 - golang-migrate
 - just
 
+## Environment variables
+- `DATABASE_URL`
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHAT_ID`
+
 ## For dev
 
 ### Run development postgres
