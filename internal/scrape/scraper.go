@@ -7,5 +7,6 @@ import (
 )
 
 type Scraper interface {
+	Name() string
 	GetJobs(context.Context) ([]domain.Job, error)
 }
