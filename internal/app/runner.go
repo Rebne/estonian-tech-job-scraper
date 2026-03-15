@@ -23,10 +23,10 @@ type Runner struct {
 	notifier  notifier.Notifier
 }
 
-func NewRunner(config Config) *Runner {
+func NewRunner(config Config) (*Runner, error) {
 	db, err := newDB(config.DatabaseURL)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to initialize database: %w", err)
 	}
 	return &Runner{
 		scrapers: []scrape.Scraper{
@@ -36,7 +36,7 @@ func NewRunner(config Config) *Runner {
 		repo:      jobs.New(db),
 		formatter: jobformatter.NewTelegramHTMLFormatter(),
 		notifier:  notifier.NewTelegramNotifier(config.TelegramBotToken, config.TelegramChatID),
-	}
+	}, nil
 }
 
 func (r *Runner) Run(ctx context.Context) error {

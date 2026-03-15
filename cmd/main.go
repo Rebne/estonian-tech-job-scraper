@@ -13,5 +13,10 @@ func main() {
 		log.Fatal("building config failed: ", err)
 	}
 
-	app.NewRunner(config).Run(context.Background())
+	runner, err := app.NewRunner(config)
+	if err != nil {
+		log.Fatal("initializing runner failed: ", err)
+	}
+
+	runner.Run(context.Background())
 }
