@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 type ModeOption string
@@ -55,4 +56,16 @@ func BuildConfig() (Config, error) {
 		TelegramChatID:   telegramChatID,
 		Mode: mode,
 	}, nil
+}
+
+func StringToModeOption(s string) (ModeOption, error) {
+	switch strings.ToLower(s) {
+		case "dev":
+			return Dev, nil
+		case "test":
+			return Test, nil
+		case "prod":
+			return Prod, nil
+	}
+	return "", fmt.Errorf("invalid mode option %q: valid options are dev, test, prod", s)
 }
