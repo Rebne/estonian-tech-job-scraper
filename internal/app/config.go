@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 type ModeOption string
@@ -28,6 +30,7 @@ type Config struct {
 }
 
 func BuildConfig(async bool) (Config, error) {
+	_ = godotenv.Load()
 	var unsetVariables []string
 
 	databaseURL := os.Getenv(string(DatabaseURL))
