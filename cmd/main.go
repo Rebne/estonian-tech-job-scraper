@@ -23,5 +23,8 @@ func main() {
 		log.Fatal("initializing runner failed: ", err)
 	}
 
-	runner.Run(context.Background())
+	err = runner.Run(context.Background())
+	if err != nil {
+		log.Printf("errors: %v", err)
+	}
 }
