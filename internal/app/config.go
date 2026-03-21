@@ -38,17 +38,17 @@ func BuildConfig(async bool) (Config, error) {
 	telegramChatID := os.Getenv(string(TelegramChatID))
 	mode, err := StringToModeOption(os.Getenv(string(Mode)))
 	if err != nil {
-		unsetVariables = append(unsetVariables, string(mode))
+		unsetVariables = append(unsetVariables, string(Mode))
 	}
 
 	if databaseURL == "" && !mode.IsDev(){
-		unsetVariables = append(unsetVariables, databaseURL)
+		unsetVariables = append(unsetVariables, string(DatabaseURL))
 	}
 	if telegramBotToken == "" && !mode.IsDev(){
-		unsetVariables = append(unsetVariables, telegramBotToken)
+		unsetVariables = append(unsetVariables, string(TelegramBotToken))
 	}
 	if telegramChatID == "" && !mode.IsDev(){
-		unsetVariables = append(unsetVariables, telegramChatID)
+		unsetVariables = append(unsetVariables, string(TelegramChatID))
 	}
 
 	if len(unsetVariables) > 0 {
