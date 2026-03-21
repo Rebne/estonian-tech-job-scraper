@@ -9,6 +9,7 @@ import (
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/repository/sqlc/jobs"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobformatter"
 	"github.com/Rebne/scrapy_project_v2/pkg/notifier"
@@ -17,16 +18,18 @@ import (
 
 type Runner interface {
 	Run(context.Context) error
+	Close() error
 }
 
 type runner struct {
-	scrapers  []scrape.Scraper
-	db        *pgxpool.Pool
-	repo      *jobs.Queries
-	formatter jobformatter.JobFormatter
-	notifier  notifier.Notifier
+	scrapers   []scrape.Scraper
+	db         *pgxpool.Pool
+	repo       *jobs.Queries
+	formatter  jobformatter.JobFormatter
+	notifier   notifier.Notifier
+	retrievers []fetcher.HTMLRetriever
 	scrapeFunc scrapeFunc
-	options runnerOptions
+	options    runnerOptions
 }
 
 type runnerOptions struct {
@@ -60,13 +63,33 @@ func NewRunner(config Config) (Runner, error) {
 	}
 
 	runner.formatter = jobformatter.NewTelegramHTMLFormatter()
-	runner.scrapers = []scrape.Scraper{
-		sources.NewCgiScraper(),
-	}
+
+	chromeRetriever := fetcher.NewChromeFetcher()
+	runner.addScraper(sources.NewCgiScraper(chromeRetriever))
+	runner.retrievers = []fetcher.HTMLRetriever{chromeRetriever}
 
 	runner.options.devMode = config.Mode.IsDev()
 
 	return &runner, nil
+}
+
+func (r *runner) Close() error {
+	closeErrors := make([]error, 0)
+	for _, retriever := range r.retrievers {
+		if retriever == nil {
+			continue
+		}
+
+		if err := retriever.Close(); err != nil {
+			closeErrors = append(closeErrors, err)
+		}
+	}
+
+	return errors.Join(closeErrors...)
+}
+
+func (r *runner) addScraper(scraper scrape.Scraper) {
+	r.scrapers = append(r.scrapers, scraper)
 }
 
 func (r *runner) Run(ctx context.Context) error {
