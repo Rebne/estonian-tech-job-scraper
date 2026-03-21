@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func FetchHTMLByHTTP(ctx context.Context, url string) (string, error) {
+func FetchHTMLViaHTTP(ctx context.Context, url string) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return "", err
