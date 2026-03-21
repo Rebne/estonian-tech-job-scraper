@@ -24,6 +24,7 @@ type Runner interface {
 	repo      *jobs.Queries
 	formatter jobformatter.JobFormatter
 	notifier  notifier.Notifier
+	scrapeFunc scrapeFunc
 }
 
 func NewRunner(config Config) (*Runner, error) {
@@ -41,6 +42,7 @@ func NewRunner(config Config) (*Runner, error) {
 		notifier:  notifier.NewTelegramNotifier(config.TelegramBotToken, config.TelegramChatID),
 	}, nil
 }
+type scrapeFunc func(context.Context, []scrape.Scraper) ([]domain.Job, error)
 
 func (r *Runner) Run(ctx context.Context) error {
 	return r.RunSync(ctx)
