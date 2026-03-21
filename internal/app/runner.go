@@ -19,6 +19,7 @@ type Runner interface {
 	Run(context.Context) error
 }
 
+type runner struct {
 	scrapers  []scrape.Scraper
 	db        *pgxpool.Pool
 	repo      *jobs.Queries
@@ -27,45 +28,50 @@ type Runner interface {
 	scrapeFunc scrapeFunc
 }
 
-func NewRunner(config Config) (*Runner, error) {
-	db, err := newDB(config.DatabaseURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize database: %w", err)
-	}
-	return &Runner{
-		scrapers: []scrape.Scraper{
-			sources.NewCgiScraper(),
-		},
-		db:        db,
-		repo:      jobs.New(db),
-		formatter: jobformatter.NewTelegramHTMLFormatter(),
-		notifier:  notifier.NewTelegramNotifier(config.TelegramBotToken, config.TelegramChatID),
-	}, nil
-}
 type scrapeFunc func(context.Context, []scrape.Scraper) ([]domain.Job, error)
 
-func (r *Runner) Run(ctx context.Context) error {
-	return r.RunSync(ctx)
+func NewRunner(config Config) (Runner, error) {
+	var runner runner
+
+	if config.Mode.IsTest() || config.Mode.IsProd() {
+		db, err := newDB(config.DatabaseURL)
+		if err != nil {
+			return nil, fmt.Errorf("failed to initialize database: %w", err)
+		}
+		runner.db = db
+		runner.repo = jobs.New(db)
+	}
+
+	if config.Mode.IsProd() {
+		runner.notifier = notifier.NewTelegramNotifier(config.TelegramBotToken, config.TelegramChatID)
+	} else {
+		runner.notifier = notifier.NewStdOutNotifier()
+	}
+
+	if config.Async {
+		runner.scrapeFunc = scrapeAsync
+	} else {
+		runner.scrapeFunc = scrapeSync
+	}
+
+	runner.scrapers = []scrape.Scraper{
+		sources.NewCgiScraper(),
+	}
+
+	return &runner, nil
 }
 
-func (r *Runner) RunSync(ctx context.Context) error {
-	scrapedJobs, scrapeErr := r.scrapeSync(ctx)
+func (r *runner) Run(ctx context.Context) error {
+	scrapedJobs, scrapeErr := r.scrapeFunc(ctx, r.scrapers)
 	persistErr := r.persistAndNotify(ctx, scrapedJobs)
 
 	return errors.Join(scrapeErr, persistErr)
 }
 
-func (r *Runner) RunAsync(ctx context.Context) error {
-	scrapedJobs, scrapeErr := r.scrapeAsync(ctx)
-	persistErr := r.persistAndNotify(ctx, scrapedJobs)
-
-	return errors.Join(scrapeErr, persistErr)
-}
-
-func (r *Runner) scrapeSync(ctx context.Context) ([]domain.Job, error) {
+func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) ([]domain.Job, error) {
 	result := make([]domain.Job, 0)
 	scrapeErrors := make([]error, 0)
-	for _, scraper := range r.scrapers {
+	for _, scraper := range scrapers {
 		jobs, err := scraper.GetJobs(ctx)
 		if err != nil {
 			scrapeErrors = append(scrapeErrors, fmt.Errorf("scraper %q failed: %w", scraper.Name(), err))
@@ -81,13 +87,13 @@ func (r *Runner) scrapeSync(ctx context.Context) ([]domain.Job, error) {
 	return result, nil
 }
 
-func (r *Runner) scrapeAsync(ctx context.Context) ([]domain.Job, error) {
+func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) ([]domain.Job, error) {
 	result := make([]domain.Job, 0)
 	var mu sync.Mutex
 	scrapeErrors := make([]error, 0)
 
 	var wg sync.WaitGroup
-	for _, scraper := range r.scrapers {
+	for _, scraper := range scrapers {
 		scraper := scraper
 		wg.Go(func() {
 			scrapedJobs, err := scraper.GetJobs(ctx)
@@ -112,7 +118,7 @@ func (r *Runner) scrapeAsync(ctx context.Context) ([]domain.Job, error) {
 	return result, nil
 }
 
-func (r *Runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job) error {
+func (r *runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job) error {
 	if len(scrapedJobs) == 0 {
 		return nil
 	}
