@@ -67,9 +67,13 @@ func (cs *cgiScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	var result []domain.Job
 
-	// Select all table rows except the header
-	rows := doc.Find("tr").Slice(1, goquery.ToEnd)
+	rows := doc.Find("tr")
+	if rows.Length() == 0 {
+		return nil, errors.New("cgi document missing table rows")
+	}
 
+	// Select all table rows except the header
+	rows = rows.Slice(1, goquery.ToEnd)
 	if rows.Length() == 0 {
 		return nil, errors.New("Something wrong with CGI scraper. No items found.")
 	}
