@@ -11,7 +11,10 @@ Golang rewrite of scrapy_project_v1 (Python. This project scrapes Estonian IT-se
 - `DATABASE_URL`
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
-
+- `MODE`
+  - dev: only print to console, no database
+  - test: only print to console, database (this value can actually be anything)
+  - prod: send to telegram, database
 ## For dev
 
 ### Run development postgres
