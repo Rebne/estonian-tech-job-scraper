@@ -2,4 +2,7 @@ package fetcher
 
 import "context"
 
-type HTMLRetriever func(context context.Context, url string) (string, error)
+type HTMLRetriever interface {
+	Fetch(context.Context, string) (string, error)
+	Close() error
+}
