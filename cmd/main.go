@@ -22,6 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal("initializing runner failed: ", err)
 	}
+	defer runner.Close()
 
 	err = runner.Run(context.Background())
 	if err != nil {
