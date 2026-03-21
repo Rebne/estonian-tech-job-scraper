@@ -43,7 +43,7 @@ type TitleIncludeFilter struct{}
 
 func (TitleIncludeFilter) Ok(job domain.Job) bool {
 	for _, key := range includeKeywords {
-		if found := strings.Contains(job.Title(), key); found {
+		if found := strings.Contains(strings.ToLower(job.Title()), key); found {
 			return true
 		}
 	}
@@ -54,7 +54,7 @@ type TitleExcludeFilter struct{}
 
 func (TitleExcludeFilter) Ok(job domain.Job) bool {
 	for _, key := range excludeKeywords {
-		if found := strings.Contains(job.Title(), key); found {
+		if found := strings.Contains(strings.ToLower(job.Title()), key); found {
 			return false
 		}
 	}
