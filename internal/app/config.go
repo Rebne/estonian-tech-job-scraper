@@ -24,9 +24,10 @@ type Config struct {
 	TelegramBotToken string
 	TelegramChatID   string
 	Mode ModeOption
+	Async bool
 }
 
-func BuildConfig() (Config, error) {
+func BuildConfig(async bool) (Config, error) {
 	var unsetVariables []string
 
 	databaseURL := os.Getenv(string(DatabaseURL))
@@ -55,6 +56,7 @@ func BuildConfig() (Config, error) {
 		TelegramBotToken: telegramBotToken,
 		TelegramChatID:   telegramChatID,
 		Mode: mode,
+		Async: async,
 	}, nil
 }
 

@@ -2,16 +2,21 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 
 	"github.com/Rebne/scrapy_project_v2/internal/app"
 )
 
 func main() {
-	config, err := app.BuildConfig()
+	async := flag.Bool("async", false, "run scrapers concurrently")
+	flag.Parse()
+
+	config, err := app.BuildConfig(*async)
 	if err != nil {
 		log.Fatal("building config failed: ", err)
 	}
+	config.Async = *async
 
 	runner, err := app.NewRunner(config)
 	if err != nil {
