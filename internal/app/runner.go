@@ -63,14 +63,26 @@ func NewRunner(config Config) (Runner, error) {
 		sources.NewCgiScraper(),
 	}
 
+	runner.options.devMode = config.Mode.IsDev()
+
 	return &runner, nil
 }
 
 func (r *runner) Run(ctx context.Context) error {
 	scrapedJobs, scrapeErr := r.scrapeFunc(ctx, r.scrapers)
-	persistErr := r.persistAndNotify(ctx, scrapedJobs)
+	var runErr error
+	// in devmode notify all jobs, no persistence
+	if r.options.devMode {
+		var messages []string
+		for _, job := range scrapedJobs {
+			messages = append(messages, r.formatter.MustFormatJob(job))
+		}
+		runErr = r.notifier.Notify(messages)
+	} else {
+		runErr = r.persistAndNotify(ctx, scrapedJobs)
+	}
 
-	return errors.Join(scrapeErr, persistErr)
+	return errors.Join(scrapeErr, runErr)
 }
 
 func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) ([]domain.Job, error) {
