@@ -15,7 +15,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Runner struct {
+type Runner interface {
+	Run(context.Context) error
+}
+
 	scrapers  []scrape.Scraper
 	db        *pgxpool.Pool
 	repo      *jobs.Queries
