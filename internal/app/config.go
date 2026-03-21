@@ -5,6 +5,12 @@ import (
 	"os"
 )
 
+type ModeOption string
+
+const Dev ModeOption = "dev"
+const Test ModeOption = "test"
+const Prod ModeOption = "prod"
+
 type EnvironmentVariable string
 
 const DatabaseURL EnvironmentVariable = "DATABASE_URL"
