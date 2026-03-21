@@ -26,6 +26,11 @@ type runner struct {
 	formatter jobformatter.JobFormatter
 	notifier  notifier.Notifier
 	scrapeFunc scrapeFunc
+	options runnerOptions
+}
+
+type runnerOptions struct {
+	devMode bool
 }
 
 type scrapeFunc func(context.Context, []scrape.Scraper) ([]domain.Job, error)
