@@ -25,20 +25,20 @@ func (cs *cgiScraper) Name() string {
 	return "cgi"
 }
 
-func NewCgiScraper() *cgiScraper {
+func NewCgiScraper(retriever fetcher.HTMLRetriever) *cgiScraper {
 	filterChain := jobfilter.NewJobFilterChain().
 		Add(jobfilter.LocationEstoniaFilter{}).
 		Add(jobfilter.TitleIncludeFilter{}).
 		Add(jobfilter.TitleExcludeFilter{})
 	return &cgiScraper{
 		url:       URL,
-		retriever: fetcher.FetchHTMLViaChrome,
+		retriever: retriever,
 		filters:   filterChain,
 	}
 }
 
 func (cs *cgiScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
-	html, err := cs.retriever(ctx, cs.url)
+	html, err := cs.retriever.Fetch(ctx, cs.url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve CGI html: %w", err)
 	}
