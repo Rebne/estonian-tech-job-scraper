@@ -10,19 +10,26 @@ type EnvironmentVariable string
 const DatabaseURL EnvironmentVariable = "DATABASE_URL"
 const TelegramBotToken EnvironmentVariable = "TELEGRAM_BOT_TOKEN"
 const TelegramChatID EnvironmentVariable = "TELEGRAM_CHAT_ID"
+const Mode EnvironmentVariable = "MODE"
 
 type Config struct {
 	DatabaseURL      string
 	TelegramBotToken string
 	TelegramChatID   string
+	Mode ModeOption
 }
 
 func BuildConfig() (Config, error) {
+	var unsetVariables []string
+
 	databaseURL := os.Getenv(string(DatabaseURL))
 	telegramBotToken := os.Getenv(string(TelegramBotToken))
 	telegramChatID := os.Getenv(string(TelegramChatID))
+	mode, err := StringToModeOption(os.Getenv(string(Mode)))
+	if err != nil {
+		unsetVariables = append(unsetVariables, string(mode))
+	}
 
-	var unsetVariables []string
 	if databaseURL == "" {
 		unsetVariables = append(unsetVariables, databaseURL)
 	}
@@ -40,5 +47,6 @@ func BuildConfig() (Config, error) {
 		DatabaseURL:      databaseURL,
 		TelegramBotToken: telegramBotToken,
 		TelegramChatID:   telegramChatID,
+		Mode: mode,
 	}, nil
 }
