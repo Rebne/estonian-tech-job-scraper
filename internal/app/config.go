@@ -69,3 +69,15 @@ func StringToModeOption(s string) (ModeOption, error) {
 	}
 	return "", fmt.Errorf("invalid mode option %q: valid options are dev, test, prod", s)
 }
+
+func (mo *ModeOption) IsProd() bool {
+	return *mo == Prod
+}
+
+func (mo *ModeOption) IsDev() bool {
+	return *mo == Dev
+}
+
+func (mo *ModeOption) IsTest() bool {
+	return *mo == Test
+}
