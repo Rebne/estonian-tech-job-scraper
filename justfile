@@ -1,6 +1,9 @@
 run:
     go run cmd/main.go
 
+async:
+    go run cmd/main.go --async
+
 create-migration name:
     migrate create -seq -dir migrations -ext sql {{name}}
 
