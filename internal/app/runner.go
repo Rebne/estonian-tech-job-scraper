@@ -59,6 +59,7 @@ func NewRunner(config Config) (Runner, error) {
 		runner.scrapeFunc = scrapeSync
 	}
 
+	runner.formatter = jobformatter.NewTelegramHTMLFormatter()
 	runner.scrapers = []scrape.Scraper{
 		sources.NewCgiScraper(),
 	}
