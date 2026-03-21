@@ -32,7 +32,7 @@ func NewCgiScraper() *cgiScraper {
 		Add(jobfilter.TitleExcludeFilter{})
 	return &cgiScraper{
 		url:       URL,
-		retriever: fetcher.FetchHTMLByHTTP,
+		retriever: fetcher.FetchHTMLViaChrome,
 		filters:   filterChain,
 	}
 }
