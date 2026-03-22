@@ -64,9 +64,11 @@ func NewRunner(config Config) (Runner, error) {
 
 	runner.formatter = jobformatter.NewTelegramHTMLFormatter()
 
+	httpRetriever := fetcher.NewHTTPFetcher()
 	chromeRetriever := fetcher.NewChromeFetcher()
+	runner.retrievers = []fetcher.HTMLRetriever{httpRetriever, chromeRetriever}
 	runner.addScraper(sources.NewCgiScraper(chromeRetriever))
-	runner.retrievers = []fetcher.HTMLRetriever{chromeRetriever}
+	runner.addScraper(sources.NewCodeborneScraper(httpRetriever))
 
 	runner.options.devMode = config.Mode.IsDev()
 
