@@ -46,18 +46,9 @@ func (cs *cgiScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse CGI jobs: %w", err)
 	}
-	return cs.filterJobs(jobs), nil
+	return filterJobs(jobs, cs.filters), nil
 }
 
-func (cs *cgiScraper) filterJobs(jobs []domain.Job) []domain.Job {
-	var result []domain.Job
-	for _, job := range jobs {
-		if cs.filters.Match(job) {
-			result = append(result, job)
-		}
-	}
-	return result
-}
 
 func (cs *cgiScraper) parseJobs(html string) ([]domain.Job, error) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(html))
