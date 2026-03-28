@@ -65,7 +65,7 @@ func (cs *cgiScraper) parseJobs(html string) ([]domain.Job, error) {
 	// Select all table rows except the header
 	rows = rows.Slice(1, goquery.ToEnd)
 	if rows.Length() == 0 {
-		return nil, errors.New("Something wrong with CGI scraper. No items found.")
+		return nil, ErrNoJobsFound
 	}
 
 	categoryRegex := regexp.MustCompile(`(?i)Software Development`)
