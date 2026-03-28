@@ -16,7 +16,7 @@ const codeborneURL string = "https://codeborne.com/en/jobs/"
 type codeborneScraper struct {
 	url       string
 	retriever fetcher.HTMLRetriever
-	filters jobfilter.JobFilterChain
+	filters   jobfilter.JobFilterChain
 }
 
 func NewCodeborneScraper(retriever fetcher.HTMLRetriever) *codeborneScraper {
@@ -26,7 +26,7 @@ func NewCodeborneScraper(retriever fetcher.HTMLRetriever) *codeborneScraper {
 	return &codeborneScraper{
 		url:       codeborneURL,
 		retriever: retriever,
-		filters: filterChain,
+		filters:   filterChain,
 	}
 }
 
