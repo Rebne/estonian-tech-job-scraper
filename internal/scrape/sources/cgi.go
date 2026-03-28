@@ -49,7 +49,6 @@ func (cs *cgiScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 	return filterJobs(jobs, cs.filters), nil
 }
 
-
 func (cs *cgiScraper) parseJobs(html string) ([]domain.Job, error) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(html))
 	if err != nil {
