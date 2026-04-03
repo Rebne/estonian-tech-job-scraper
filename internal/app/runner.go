@@ -11,6 +11,8 @@ import (
 	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources"
+
+	apisources "github.com/Rebne/scrapy_project_v2/internal/scrape/sources/api"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobformatter"
 	"github.com/Rebne/scrapy_project_v2/pkg/notifier"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -69,6 +71,23 @@ func NewRunner(config Config) (Runner, error) {
 	runner.retrievers = []fetcher.HTMLRetriever{httpRetriever, chromeRetriever}
 	runner.addScraper(sources.NewCgiScraper(chromeRetriever))
 	runner.addScraper(sources.NewCodeborneScraper(httpRetriever))
+	runner.addScraper(sources.NewConfidoScraper(httpRetriever))
+	runner.addScraper(sources.NewFoxwayScraper(httpRetriever))
+	runner.addScraper(sources.NewGotoAndPlayScraper(httpRetriever))
+	runner.addScraper(sources.NewHelmesScraper(httpRetriever))
+	runner.addScraper(sources.NewPipedriveScraper(httpRetriever))
+	runner.addScraper(sources.NewPlaytechScraper(chromeRetriever))
+	runner.addScraper(sources.NewProekspertScraper(httpRetriever))
+	runner.addScraper(sources.NewSebScraper(httpRetriever))
+	runner.addScraper(sources.NewSwedbankScraper(httpRetriever))
+	runner.addScraper(sources.NewTaltechScraper(httpRetriever))
+	runner.addScraper(sources.NewVkgScraper(httpRetriever))
+	runner.addScraper(sources.NewWiseScraper(httpRetriever))
+	runner.addScraper(sources.NewBoltScraper(chromeRetriever))
+	runner.addScraper(apisources.NewCveeScraper(httpRetriever))
+	runner.addScraper(apisources.NewGliaScraper(httpRetriever))
+	runner.addScraper(apisources.NewMicrosoftScraper(httpRetriever))
+	runner.addScraper(apisources.NewStebbyScraper(httpRetriever))
 
 	runner.options.devMode = config.Mode.IsDev()
 
