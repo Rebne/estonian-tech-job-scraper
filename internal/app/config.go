@@ -44,10 +44,10 @@ func BuildConfig(async bool) (Config, error) {
 	if databaseURL == "" && !mode.IsDev(){
 		unsetVariables = append(unsetVariables, string(DatabaseURL))
 	}
-	if telegramBotToken == "" && !mode.IsDev(){
+	if telegramBotToken == "" && !mode.IsDev() && !mode.IsTest(){
 		unsetVariables = append(unsetVariables, string(TelegramBotToken))
 	}
-	if telegramChatID == "" && !mode.IsDev(){
+	if telegramChatID == "" && !mode.IsDev() && !mode.IsTest(){
 		unsetVariables = append(unsetVariables, string(TelegramChatID))
 	}
 
