@@ -28,7 +28,7 @@ SELECT id, job_hash, page, title, created_at, deleted, deleted_at
 FROM
     jobs
 WHERE
-    deleted <> FALSE
+    deleted <> TRUE
 `
 
 func (q *Queries) GetAllJobs(ctx context.Context) ([]Job, error) {

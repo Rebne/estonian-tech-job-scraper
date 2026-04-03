@@ -3,7 +3,7 @@ SELECT *
 FROM
     jobs
 WHERE
-    deleted <> FALSE;
+    deleted <> TRUE;
 
 -- name: InsertJob :exec
 INSERT INTO jobs (job_hash, page, title)
