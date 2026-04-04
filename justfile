@@ -16,6 +16,10 @@ force-migration count:
 run-dev-postgres:
     docker run --name postgres-dev -e POSTGRES_PASSWORD=postgres -p 5455:5432 -d postgres
 
+build-mac-arm:
+    mkdir -p bin
+    GOOS=darwin GOARCH=arm64 go build -o bin/scraper_mac cmd/main.go
+
 build:
     mkdir -p bin
-    go build -o bin/scraper cmd/main.go
+    GOOS=linux GOARCH=amd64 go build -o bin/scraper cmd/main.go
