@@ -81,7 +81,12 @@ func NewRunner(config Config) (Runner, error) {
 		return nil, fmt.Errorf("failed to initialize chrome fetcher: %w", err)
 	}
 
-	runner.retrievers = []fetcher.HTMLRetriever{httpRetriever, chromeRetriever}
+	playwrightRetriever, err := fetcher.NewPlaywrightFetcher(config.ProxyURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize playwright fetcher: %w", err)
+	}
+
+	runner.retrievers = []fetcher.HTMLRetriever{httpRetriever, chromeRetriever, playwrightRetriever}
 	runner.addScraper(sources.NewCgiScraper(chromeRetriever))
 	runner.addScraper(sources.NewCodeborneScraper(httpRetriever))
 	runner.addScraper(sources.NewConfidoScraper(httpRetriever))
@@ -96,7 +101,7 @@ func NewRunner(config Config) (Runner, error) {
 	runner.addScraper(sources.NewTaltechScraper(httpRetriever))
 	runner.addScraper(sources.NewVkgScraper(httpRetriever))
 	runner.addScraper(sources.NewWiseScraper(httpRetriever))
-	runner.addScraper(sources.NewBoltScraper(chromeRetriever))
+	runner.addScraper(sources.NewBoltScraper(playwrightRetriever))
 	runner.addScraper(apisources.NewCveeScraper(httpRetriever))
 	runner.addScraper(apisources.NewGliaScraper(httpRetriever))
 	runner.addScraper(apisources.NewMicrosoftScraper(httpRetriever))
