@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"sync"
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
@@ -66,8 +67,20 @@ func NewRunner(config Config) (Runner, error) {
 
 	runner.formatter = jobformatter.NewTelegramHTMLFormatter()
 
-	httpRetriever := fetcher.NewHTTPFetcher()
-	chromeRetriever := fetcher.NewChromeFetcher()
+	if config.ProxyURL == "" {
+		log.Printf("warning: %s is not set, continuing without proxy", ProxyURL)
+	}
+
+	httpRetriever, err := fetcher.NewHTTPFetcher(config.ProxyURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize http fetcher: %w", err)
+	}
+
+	chromeRetriever, err := fetcher.NewChromeFetcher(config.ProxyURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize chrome fetcher: %w", err)
+	}
+
 	runner.retrievers = []fetcher.HTMLRetriever{httpRetriever, chromeRetriever}
 	runner.addScraper(sources.NewCgiScraper(chromeRetriever))
 	runner.addScraper(sources.NewCodeborneScraper(httpRetriever))
