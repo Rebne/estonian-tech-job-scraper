@@ -94,7 +94,7 @@ func NewRunner(config Config) (Runner, error) {
 	runner.addScraper(sources.NewGotoAndPlayScraper(httpRetriever))
 	runner.addScraper(sources.NewHelmesScraper(httpRetriever))
 	runner.addScraper(sources.NewPipedriveScraper(httpRetriever))
-	runner.addScraper(sources.NewPlaytechScraper(chromeRetriever))
+	runner.addScraper(sources.NewPlaytechScraper(httpRetriever))
 	runner.addScraper(sources.NewProekspertScraper(httpRetriever))
 	runner.addScraper(sources.NewSebScraper(httpRetriever))
 	runner.addScraper(sources.NewSwedbankScraper(httpRetriever))
