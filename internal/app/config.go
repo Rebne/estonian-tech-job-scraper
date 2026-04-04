@@ -20,13 +20,15 @@ const DatabaseURL EnvironmentVariable = "DATABASE_URL"
 const TelegramBotToken EnvironmentVariable = "TELEGRAM_BOT_TOKEN"
 const TelegramChatID EnvironmentVariable = "TELEGRAM_CHAT_ID"
 const Mode EnvironmentVariable = "MODE"
+const ProxyURL EnvironmentVariable = "PROXY_URL"
 
 type Config struct {
 	DatabaseURL      string
 	TelegramBotToken string
 	TelegramChatID   string
-	Mode ModeOption
-	Async bool
+	ProxyURL         string
+	Mode             ModeOption
+	Async            bool
 }
 
 func BuildConfig(async bool) (Config, error) {
@@ -36,18 +38,19 @@ func BuildConfig(async bool) (Config, error) {
 	databaseURL := os.Getenv(string(DatabaseURL))
 	telegramBotToken := os.Getenv(string(TelegramBotToken))
 	telegramChatID := os.Getenv(string(TelegramChatID))
+	proxyURL := strings.TrimSpace(os.Getenv(string(ProxyURL)))
 	mode, err := StringToModeOption(os.Getenv(string(Mode)))
 	if err != nil {
 		unsetVariables = append(unsetVariables, string(Mode))
 	}
 
-	if databaseURL == "" && !mode.IsDev(){
+	if databaseURL == "" && !mode.IsDev() {
 		unsetVariables = append(unsetVariables, string(DatabaseURL))
 	}
-	if telegramBotToken == "" && !mode.IsDev() && !mode.IsTest(){
+	if telegramBotToken == "" && !mode.IsDev() && !mode.IsTest() {
 		unsetVariables = append(unsetVariables, string(TelegramBotToken))
 	}
-	if telegramChatID == "" && !mode.IsDev() && !mode.IsTest(){
+	if telegramChatID == "" && !mode.IsDev() && !mode.IsTest() {
 		unsetVariables = append(unsetVariables, string(TelegramChatID))
 	}
 
@@ -58,19 +61,20 @@ func BuildConfig(async bool) (Config, error) {
 		DatabaseURL:      databaseURL,
 		TelegramBotToken: telegramBotToken,
 		TelegramChatID:   telegramChatID,
-		Mode: mode,
-		Async: async,
+		ProxyURL:         proxyURL,
+		Mode:             mode,
+		Async:            async,
 	}, nil
 }
 
 func StringToModeOption(s string) (ModeOption, error) {
 	switch strings.ToLower(s) {
-		case "dev":
-			return Dev, nil
-		case "test":
-			return Test, nil
-		case "prod":
-			return Prod, nil
+	case "dev":
+		return Dev, nil
+	case "test":
+		return Test, nil
+	case "prod":
+		return Prod, nil
 	}
 	return "", fmt.Errorf("invalid mode option %q: valid options are dev, test, prod", s)
 }
