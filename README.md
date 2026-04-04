@@ -6,6 +6,17 @@ Golang rewrite of scrapy_project_v1 (Python. This project scrapes Estonian IT-se
 - sqlc
 - golang-migrate
 - just
+- chrome (for chromedp)
+
+## Setting up and running
+```shell
+go mod install
+
+# Installs playwright dependecies (browsers mostly)
+go run github.com/playwright-community/playwright-go/cmd/playwright@v0.5700.1 install --with-deps
+
+just run
+```
 
 ## Environment variables
 - `DATABASE_URL`
