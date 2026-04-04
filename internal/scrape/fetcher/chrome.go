@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/url"
 	"sync"
 
 	"github.com/chromedp/chromedp"
@@ -15,7 +14,6 @@ var errChromeFetcherClosed = errors.New("chrome fetcher closed")
 type ChromeFetcher struct {
 	once      sync.Once
 	closeOnce sync.Once
-	proxyURL  string
 
 	mu            sync.RWMutex
 	closed        bool
@@ -26,18 +24,8 @@ type ChromeFetcher struct {
 	browserCancel context.CancelFunc
 }
 
-func NewChromeFetcher(proxyURL string) (*ChromeFetcher, error) {
-	if proxyURL != "" {
-		parsedProxyURL, err := url.Parse(proxyURL)
-		if err != nil {
-			return nil, err
-		}
-		if parsedProxyURL.Scheme == "" || parsedProxyURL.Host == "" {
-			return nil, fmt.Errorf("missing scheme or host in proxyUrl")
-		}
-	}
-
-	return &ChromeFetcher{proxyURL: proxyURL}, nil
+func NewChromeFetcher() (*ChromeFetcher, error) {
+	return &ChromeFetcher{}, nil
 }
 
 func (cf *ChromeFetcher) initBrowser() {
@@ -50,9 +38,6 @@ func (cf *ChromeFetcher) initBrowser() {
 		chromedp.Flag("window-size", "1366,768"),
 		chromedp.Flag("disable-gpu", true),
 		chromedp.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"),
-	}
-	if cf.proxyURL != "" {
-		allocatorOptions = append(allocatorOptions, chromedp.Flag("proxy-server", cf.proxyURL))
 	}
 
 	allocCtx, allocCancel := chromedp.NewExecAllocator(context.Background(), allocatorOptions...)
