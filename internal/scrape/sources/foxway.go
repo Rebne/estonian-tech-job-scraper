@@ -83,6 +83,7 @@ func (fs *foxwayScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithPage(fs.Name()).
 			WithLocation(location).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
+			WithURL(foxwayURL).
 			Build(),
 		)
 	})

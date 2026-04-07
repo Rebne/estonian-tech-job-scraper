@@ -94,6 +94,7 @@ func (hs *helmesScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithPage(hs.Name()).
 			WithLocation(location).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
+			WithURL(helmesURL).
 			Build(),
 		)
 	})

@@ -92,6 +92,7 @@ func (cs *cgiScraper) parseJobs(html string) ([]domain.Job, error) {
 				WithLocation(location).
 				WithCategory(category).
 				WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
+				WithURL(cgiURL).
 				Build()
 			result = append(result, job)
 		}

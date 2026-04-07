@@ -67,6 +67,7 @@ func (gs *gotoAndPlayScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithPage(gs.Name()).
 			WithLocation("Tartu, Estonia").
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
+			WithURL(gotoAndPlayURL).
 			Build(),
 		)
 	})

@@ -72,6 +72,7 @@ func (ps *proekspertScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithTitle(title).
 			WithPage(ps.Name()).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
+			WithURL(proekspertURL).
 			Build(),
 		)
 	})

@@ -81,6 +81,7 @@ func (vs *vkgScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithPage(vs.Name()).
 			WithLocation(location).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
+			WithURL(vkgURL).
 			Build(),
 		)
 	})

@@ -98,6 +98,7 @@ func (ss *swedbankScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithPage(ss.Name()).
 			WithLocation(location).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
+			WithURL(swedbankURL).
 			Build(),
 		)
 	})

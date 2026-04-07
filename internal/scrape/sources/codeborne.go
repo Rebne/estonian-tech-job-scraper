@@ -70,6 +70,7 @@ func (cs *codeborneScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithLocation(location).
 			WithEmploymentType(level).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
+			WithURL(codeborneURL).
 			Build(),
 		)
 	})

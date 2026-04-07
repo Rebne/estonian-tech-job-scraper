@@ -68,6 +68,7 @@ func (bs *boltScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithPage(bs.Name()).
 			WithLocation(location).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
+			WithURL(boltURL).
 			Build(),
 		)
 	})

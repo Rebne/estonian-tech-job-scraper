@@ -80,6 +80,7 @@ func (ss *sebScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithPage(ss.Name()).
 			WithLocation(location).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
+			WithURL(sebURL).
 			Build(),
 		)
 	})

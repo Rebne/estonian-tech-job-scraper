@@ -89,6 +89,7 @@ func (ps *playtechScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithLocation(location).
 			WithCategory(category).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
+			WithURL(playtechURL).
 			Build(),
 		)
 	})
