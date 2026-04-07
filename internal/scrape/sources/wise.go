@@ -73,7 +73,7 @@ func (ws *wiseScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithTitle(title).
 			WithPage(ws.Name()).
 			WithLocation("Tallinn").
-			WithURL("https://wise.jobs"+strings.TrimSpace(href)).
+			WithURL(shared.FallbackOnEmptyString("https://wise.jobs"+strings.TrimSpace(href), wiseURL)).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
 			Build(),
 		)

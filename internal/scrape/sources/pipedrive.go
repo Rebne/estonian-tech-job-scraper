@@ -76,7 +76,7 @@ func (ps *pipedriveScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithTitle(title).
 			WithPage(ps.Name()).
 			WithLocation(location).
-			WithURL(href).
+			WithURL(shared.FallbackOnEmptyString(href, pipedriveURL)).
 			WithHashFrom(domain.HashFieldPage, domain.HashFieldTitle, domain.HashFieldURL).
 			Build(),
 		)

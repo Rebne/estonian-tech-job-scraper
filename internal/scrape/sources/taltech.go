@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 )
 
 const taltechURL string = "https://career.taltech.ee/pakkumised/?sectors=infotehnoloogia"
@@ -76,7 +77,7 @@ func (ts *taltechScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithPage(ts.Name()).
 			WithCompany(company).
 			WithCategory(category).
-			WithURL(strings.TrimSpace(url)).
+			WithURL(shared.FallbackOnEmptyString(strings.TrimSpace(url), taltechURL)).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
 			Build(),
 		)
