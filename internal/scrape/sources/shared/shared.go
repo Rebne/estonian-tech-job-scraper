@@ -30,3 +30,10 @@ func FetchJSON(ctx context.Context, retriever fetcher.HTMLRetriever, url string,
 
 	return json.Unmarshal([]byte(body), target)
 }
+
+func FallbackOnEmptyString(target, fallback string) string {
+	if target == "" {
+		return fallback
+	}
+	return target
+}
