@@ -10,6 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
@@ -48,7 +49,7 @@ func (ps *playtechScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		return nil, fmt.Errorf("failed to parse Playtech jobs: %w", err)
 	}
 
-	return filterJobs(jobs, ps.filters), nil
+	return shared.FilterJobs(jobs, ps.filters), nil
 }
 
 func (ps *playtechScraper) parseJobs(html string) ([]domain.Job, error) {

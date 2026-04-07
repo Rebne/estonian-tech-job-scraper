@@ -8,6 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
@@ -45,7 +46,7 @@ func (ps *pipedriveScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		return nil, fmt.Errorf("failed to parse Pipedrive jobs: %w", err)
 	}
 
-	return filterJobs(jobs, ps.filters), nil
+	return shared.FilterJobs(jobs, ps.filters), nil
 }
 
 func (ps *pipedriveScraper) parseJobs(html string) ([]domain.Job, error) {
@@ -56,7 +57,7 @@ func (ps *pipedriveScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	jobs := doc.Find("div[role='list'] > div[role='listitem']")
 	if jobs.Length() == 0 {
-		return nil, ErrNoJobsFound
+		return nil, shared.ErrNoJobsFound
 	}
 
 	result := make([]domain.Job, 0, jobs.Length())
@@ -82,7 +83,7 @@ func (ps *pipedriveScraper) parseJobs(html string) ([]domain.Job, error) {
 	})
 
 	if len(result) == 0 {
-		return nil, ErrNoJobsFound
+		return nil, shared.ErrNoJobsFound
 	}
 
 	return result, nil

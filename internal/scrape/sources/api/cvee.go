@@ -8,6 +8,7 @@ import (
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
@@ -18,7 +19,7 @@ var mediatedOfferRegex = regexp.MustCompile(`(?i)vahendatud pakkumised`)
 type cveeScraper struct {
 	url       string
 	retriever fetcher.HTMLRetriever
-	filters jobfilter.JobFilterChain
+	filters   jobfilter.JobFilterChain
 }
 
 type cveeSearchResponse struct {
@@ -36,9 +37,9 @@ func NewCveeScraper(retriever fetcher.HTMLRetriever) *cveeScraper {
 		Add(jobfilter.TitleExcludeFilter{}).
 		Add(jobfilter.TitleIncludeFilter{})
 	return &cveeScraper{
-		url: cveeURL,
+		url:       cveeURL,
 		retriever: retriever,
-		filters: filterChain,
+		filters:   filterChain,
 	}
 }
 
@@ -48,7 +49,7 @@ func (cs *cveeScraper) Name() string {
 
 func (cs *cveeScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 	var payload cveeSearchResponse
-	if err := fetchJSON(ctx, cs.retriever, cs.url, &payload); err != nil {
+	if err := shared.FetchJSON(ctx, cs.retriever, cs.url, &payload); err != nil {
 		return nil, fmt.Errorf("failed to retrieve CVEE jobs: %w", err)
 	}
 
@@ -75,5 +76,5 @@ func (cs *cveeScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		)
 	}
 
-	return filterJobs(result, cs.filters), nil
+	return shared.FilterJobs(result, cs.filters), nil
 }

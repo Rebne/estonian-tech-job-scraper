@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
@@ -45,7 +46,7 @@ func (ws *wiseScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		return nil, fmt.Errorf("failed to parse Wise jobs: %w", err)
 	}
 
-	return filterJobs(jobs, ws.filters), nil
+	return shared.FilterJobs(jobs, ws.filters), nil
 }
 
 func (ws *wiseScraper) parseJobs(html string) ([]domain.Job, error) {

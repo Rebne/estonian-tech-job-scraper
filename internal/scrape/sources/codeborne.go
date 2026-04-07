@@ -8,6 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
@@ -45,7 +46,7 @@ func (cs *codeborneScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		return nil, fmt.Errorf("failed to parse Codeborne jobs: %w", err)
 	}
 
-	return filterJobs(jobs, cs.filters), nil
+	return shared.FilterJobs(jobs, cs.filters), nil
 }
 
 func (cs *codeborneScraper) parseJobs(html string) ([]domain.Job, error) {

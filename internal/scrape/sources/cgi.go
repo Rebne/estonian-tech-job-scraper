@@ -10,6 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
@@ -46,7 +47,7 @@ func (cs *cgiScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse CGI jobs: %w", err)
 	}
-	return filterJobs(jobs, cs.filters), nil
+	return shared.FilterJobs(jobs, cs.filters), nil
 }
 
 func (cs *cgiScraper) parseJobs(html string) ([]domain.Job, error) {
@@ -65,7 +66,7 @@ func (cs *cgiScraper) parseJobs(html string) ([]domain.Job, error) {
 	// Select all table rows except the header
 	rows = rows.Slice(1, goquery.ToEnd)
 	if rows.Length() == 0 {
-		return nil, ErrNoJobsFound
+		return nil, shared.ErrNoJobsFound
 	}
 
 	categoryRegex := regexp.MustCompile(`(?i)Software Development`)

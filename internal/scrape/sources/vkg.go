@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
@@ -47,7 +48,7 @@ func (vs *vkgScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		return nil, fmt.Errorf("failed to parse VKG jobs: %w", err)
 	}
 
-	return filterJobs(jobs, vs.filters), nil
+	return shared.FilterJobs(jobs, vs.filters), nil
 }
 
 func (vs *vkgScraper) parseJobs(html string) ([]domain.Job, error) {

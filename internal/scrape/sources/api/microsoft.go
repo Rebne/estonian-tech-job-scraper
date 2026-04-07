@@ -7,6 +7,7 @@ import (
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
@@ -15,7 +16,7 @@ const microsoftURL string = "https://apply.careers.microsoft.com/api/pcsx/search
 type microsoftScraper struct {
 	url       string
 	retriever fetcher.HTMLRetriever
-	filters jobfilter.JobFilterChain
+	filters   jobfilter.JobFilterChain
 }
 
 type microsoftSearchResponse struct {
@@ -37,9 +38,9 @@ func NewMicrosoftScraper(retriever fetcher.HTMLRetriever) *microsoftScraper {
 		Add(jobfilter.TitleExcludeFilter{})
 
 	return &microsoftScraper{
-		url: microsoftURL,
+		url:       microsoftURL,
 		retriever: retriever,
-		filters: filterChain,
+		filters:   filterChain,
 	}
 }
 
@@ -49,7 +50,7 @@ func (ms *microsoftScraper) Name() string {
 
 func (ms *microsoftScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 	var payload microsoftSearchResponse
-	if err := fetchJSON(ctx, ms.retriever, ms.url, &payload); err != nil {
+	if err := shared.FetchJSON(ctx, ms.retriever, ms.url, &payload); err != nil {
 		return nil, fmt.Errorf("failed to retrieve Microsoft jobs: %w", err)
 	}
 

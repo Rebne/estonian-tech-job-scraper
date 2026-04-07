@@ -8,6 +8,7 @@ import (
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
@@ -54,9 +55,9 @@ func NewGliaScraper(retriever fetcher.HTMLRetriever) *gliaScraper {
 		Add(jobfilter.LocationEstoniaFilter{})
 
 	return &gliaScraper{
-		url: gliaURL,
+		url:       gliaURL,
 		retriever: retriever,
-		filters: filterChain,
+		filters:   filterChain,
 	}
 }
 
@@ -66,7 +67,7 @@ func (gs *gliaScraper) Name() string {
 
 func (gs *gliaScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 	var payload gliaDepartmentsResponse
-	if err := fetchJSON(ctx, gs.retriever, gs.url, &payload); err != nil {
+	if err := shared.FetchJSON(ctx, gs.retriever, gs.url, &payload); err != nil {
 		return nil, fmt.Errorf("failed to retrieve Glia jobs: %w", err)
 	}
 
@@ -96,5 +97,5 @@ func (gs *gliaScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		}
 	}
 
-	return filterJobs(result, gs.filters), nil
+	return shared.FilterJobs(result, gs.filters), nil
 }

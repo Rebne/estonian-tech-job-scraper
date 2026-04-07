@@ -7,6 +7,7 @@ import (
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 )
 
 const stebbyURL string = "https://stebby.bamboohr.com/careers/list"
@@ -40,7 +41,7 @@ func (ss *stebbyScraper) Name() string {
 
 func (ss *stebbyScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 	var payload stebbyResponse
-	if err := fetchJSON(ctx, ss.retriever, ss.url, &payload); err != nil {
+	if err := shared.FetchJSON(ctx, ss.retriever, ss.url, &payload); err != nil {
 		return nil, fmt.Errorf("failed to retrieve Stebby jobs: %w", err)
 	}
 
