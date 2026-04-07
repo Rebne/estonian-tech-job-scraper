@@ -14,7 +14,7 @@ import (
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
-const URL string = "https://cgi.njoyn.com/corp/xweb/xweb.asp?CLID=21001&page=joblisting&CountryID=EE"
+const cgiURL string = "https://cgi.njoyn.com/corp/xweb/xweb.asp?CLID=21001&page=joblisting&CountryID=EE"
 
 type cgiScraper struct {
 	url       string
@@ -32,7 +32,7 @@ func NewCgiScraper(retriever fetcher.HTMLRetriever) *cgiScraper {
 		Add(jobfilter.TitleIncludeFilter{}).
 		Add(jobfilter.TitleExcludeFilter{})
 	return &cgiScraper{
-		url:       URL,
+		url:       cgiURL,
 		retriever: retriever,
 		filters:   filterChain,
 	}
