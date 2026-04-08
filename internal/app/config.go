@@ -21,14 +21,16 @@ const TelegramBotToken EnvironmentVariable = "TELEGRAM_BOT_TOKEN"
 const TelegramChatID EnvironmentVariable = "TELEGRAM_CHAT_ID"
 const Mode EnvironmentVariable = "MODE"
 const ProxyURL EnvironmentVariable = "PROXY_URL"
+const ChromeExecutablePath EnvironmentVariable = "CHROME_EXECUTABLE_PATH"
 
 type Config struct {
-	DatabaseURL      string
-	TelegramBotToken string
-	TelegramChatID   string
-	ProxyURL         string
-	Mode             ModeOption
-	Async            bool
+	DatabaseURL          string
+	TelegramBotToken     string
+	TelegramChatID       string
+	ProxyURL             string
+	ChromeExecutablePath string
+	Mode                 ModeOption
+	Async                bool
 }
 
 func BuildConfig(async bool) (Config, error) {
@@ -39,6 +41,7 @@ func BuildConfig(async bool) (Config, error) {
 	telegramBotToken := os.Getenv(string(TelegramBotToken))
 	telegramChatID := os.Getenv(string(TelegramChatID))
 	proxyURL := strings.TrimSpace(os.Getenv(string(ProxyURL)))
+	chromeExecutablePath := strings.TrimSpace(os.Getenv(string(ChromeExecutablePath)))
 	mode, err := StringToModeOption(os.Getenv(string(Mode)))
 	if err != nil {
 		unsetVariables = append(unsetVariables, string(Mode))
@@ -58,12 +61,13 @@ func BuildConfig(async bool) (Config, error) {
 		return Config{}, fmt.Errorf("missing environment variables: %v", unsetVariables)
 	}
 	return Config{
-		DatabaseURL:      databaseURL,
-		TelegramBotToken: telegramBotToken,
-		TelegramChatID:   telegramChatID,
-		ProxyURL:         proxyURL,
-		Mode:             mode,
-		Async:            async,
+		DatabaseURL:          databaseURL,
+		TelegramBotToken:     telegramBotToken,
+		TelegramChatID:       telegramChatID,
+		ProxyURL:             proxyURL,
+		ChromeExecutablePath: chromeExecutablePath,
+		Mode:                 mode,
+		Async:                async,
 	}, nil
 }
 
