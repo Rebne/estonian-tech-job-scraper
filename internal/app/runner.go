@@ -76,7 +76,9 @@ func NewRunner(config Config) (Runner, error) {
 		return nil, fmt.Errorf("failed to initialize http fetcher: %w", err)
 	}
 
-	chromeRetriever, err := fetcher.NewChromeFetcher()
+	chromeRetriever, err := fetcher.NewChromeFetcher(fetcher.ChromeFetcherOptions{
+		ExecutablePath: config.ChromeExecutablePath,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize chrome fetcher: %w", err)
 	}
