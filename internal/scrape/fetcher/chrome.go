@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/chromedp/chromedp"
@@ -14,6 +15,7 @@ var errChromeFetcherClosed = errors.New("chrome fetcher closed")
 type ChromeFetcher struct {
 	once      sync.Once
 	closeOnce sync.Once
+	execPath  string
 
 	mu            sync.RWMutex
 	closed        bool
@@ -24,8 +26,12 @@ type ChromeFetcher struct {
 	browserCancel context.CancelFunc
 }
 
-func NewChromeFetcher() (*ChromeFetcher, error) {
-	return &ChromeFetcher{}, nil
+type ChromeFetcherOptions struct {
+	ExecutablePath string
+}
+
+func NewChromeFetcher(options ChromeFetcherOptions) (*ChromeFetcher, error) {
+	return &ChromeFetcher{execPath: strings.TrimSpace(options.ExecutablePath)}, nil
 }
 
 func (cf *ChromeFetcher) initBrowser() {
@@ -38,6 +44,9 @@ func (cf *ChromeFetcher) initBrowser() {
 		chromedp.Flag("window-size", "1366,768"),
 		chromedp.Flag("disable-gpu", true),
 		chromedp.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"),
+	}
+	if cf.execPath != "" {
+		allocatorOptions = append(allocatorOptions, chromedp.ExecPath(cf.execPath))
 	}
 
 	allocCtx, allocCancel := chromedp.NewExecAllocator(context.Background(), allocatorOptions...)
