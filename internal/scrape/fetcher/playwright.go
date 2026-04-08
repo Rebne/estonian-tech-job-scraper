@@ -11,7 +11,7 @@ import (
 	"github.com/playwright-community/playwright-go"
 )
 
-const playwrightFetchTimeoutMilliseconds = 30_000
+const playwrightFetchTimeoutMilliseconds = 60_000
 
 var errPlaywrightFetcherClosed = errors.New("playwright fetcher closed")
 
