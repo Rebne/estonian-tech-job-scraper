@@ -8,14 +8,28 @@ Golang rewrite of scrapy_project_v1 (Python. This project scrapes Estonian IT-se
 - just
 - chrome (for chromedp)
 
-## Setting up and running
+## Setup and run for dev
 ```shell
-go mod install
+# install dependencies for golang
+go mod tidy
 
-# Installs playwright dependecies (browsers mostly)
+# install playwright dependecies (browsers mostly)
 go run github.com/playwright-community/playwright-go/cmd/playwright@v0.5700.1 install --with-deps
 
+# create .env file
+cp .env.example .env
+
+# run dev postgres in docker
+just run-dev-postgres
+
+# run migrations
+just migrate
+
+# run program
 just run
+
+# or
+just async
 ```
 
 ## Environment variables
