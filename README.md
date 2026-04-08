@@ -26,6 +26,8 @@ just run
   - dev: only print to console, no database
   - test: only print to console, database (this value can actually be anything)
   - prod: send to telegram, database
+- `CHROME_EXECUTABLE_PATH` (optional)
+  - explicit Chrome/Chromium binary path for chromedp
 
 **Important:** if MODE=dev other environment variables can be omitted
 
