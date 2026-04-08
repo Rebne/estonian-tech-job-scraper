@@ -13,7 +13,7 @@ import (
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
-const wiseURL string = "https://wise.jobs/jobs?options=33,300&page=1&size=50"
+const wiseURL string = "https://wise.jobs/jobs?options=487%2C300&size=50"
 
 type wiseScraper struct {
 	url       string
