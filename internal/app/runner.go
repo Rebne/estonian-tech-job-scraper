@@ -83,9 +83,7 @@ func NewRunner(config Config) (Runner, error) {
 		return nil, fmt.Errorf("failed to initialize chrome fetcher: %w", err)
 	}
 
-	playwrightRetriever, err := fetcher.NewPlaywrightFetcher(fetcher.PlaywrightFetcherOptions{
-		ProxyURL: config.ProxyURL,
-	})
+	playwrightRetriever, err := fetcher.NewPlaywrightFetcher(fetcher.PlaywrightFetcherOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize playwright fetcher: %w", err)
 	}
