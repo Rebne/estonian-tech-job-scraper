@@ -71,7 +71,7 @@ func NewRunner(config Config) (Runner, error) {
 		log.Printf("warning: %s is not set, continuing without proxy", ProxyURL)
 	}
 
-	httpRetriever, err := fetcher.NewHTTPFetcher("")
+	httpRetriever, err := fetcher.NewHTTPFetcher(fetcher.HTTPFetcherOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize http fetcher: %w", err)
 	}
