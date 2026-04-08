@@ -26,6 +26,8 @@ just run
   - dev: only print to console, no database
   - test: only print to console, database (this value can actually be anything)
   - prod: send to telegram, database
+- `PROXY_URL` (optional)
+  - http and playwright fetchers will make requests through this proxy url
 - `CHROME_EXECUTABLE_PATH` (optional)
   - explicit Chrome/Chromium binary path for chromedp
 
