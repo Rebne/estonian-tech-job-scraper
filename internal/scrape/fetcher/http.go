@@ -12,7 +12,12 @@ type HTTPFetcher struct {
 	client *http.Client
 }
 
-func NewHTTPFetcher(proxyURL string) (*HTTPFetcher, error) {
+type HTTPFetcherOptions struct {
+	ProxyURL string
+}
+
+func NewHTTPFetcher(options HTTPFetcherOptions) (*HTTPFetcher, error) {
+	proxyURL := options.ProxyURL
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.Proxy = nil
 
