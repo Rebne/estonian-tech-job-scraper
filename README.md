@@ -32,22 +32,3 @@ just run
   - explicit Chrome/Chromium binary path for chromedp
 
 **Important:** if MODE=dev other environment variables can be omitted
-
-## For dev
-
-### Run development postgres
-```shell
-just run-dev-postgres
-```
-
-### Create a new migration
-
-```shell
-just create-migration <name>
-```
-
-### Run migrations
-
-```shell
-just migrate
-```
