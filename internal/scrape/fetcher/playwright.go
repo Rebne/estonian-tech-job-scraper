@@ -27,7 +27,12 @@ type PlaywrightFetcher struct {
 	browser playwright.Browser
 }
 
-func NewPlaywrightFetcher(proxyURL string) (*PlaywrightFetcher, error) {
+type PlaywrightFetcherOptions struct {
+	ProxyURL string
+}
+
+func NewPlaywrightFetcher(options PlaywrightFetcherOptions) (*PlaywrightFetcher, error) {
+	proxyURL := options.ProxyURL
 	if proxyURL != "" {
 		parsedProxyURL, err := url.Parse(proxyURL)
 		if err != nil {
