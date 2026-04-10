@@ -9,6 +9,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
+	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
 const boltURL string = "https://bolt.eu/en/careers/positions/?location%5B0%5D=Estonia-J%C3%B5hvi&location%5B1%5D=Estonia-Tallinn&location%5B2%5D=Estonia-Tartu&location%5B3%5D=Estonia&teams%5B0%5D=Engineering"
@@ -16,6 +18,7 @@ const boltURL string = "https://bolt.eu/en/careers/positions/?location%5B0%5D=Es
 type boltScraper struct {
 	url       string
 	retriever fetcher.HTMLRetriever
+	filters   jobfilter.JobFilterChain
 }
 
 func NewBoltScraper(retriever fetcher.HTMLRetriever) *boltScraper {
@@ -40,7 +43,7 @@ func (bs *boltScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		return nil, fmt.Errorf("failed to parse Bolt jobs: %w", err)
 	}
 
-	return jobs, nil
+	return shared.FilterJobs(jobs, bs.filters), nil
 }
 
 func (bs *boltScraper) parseJobs(html string) ([]domain.Job, error) {
