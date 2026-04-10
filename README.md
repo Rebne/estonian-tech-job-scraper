@@ -1,5 +1,6 @@
-# scrapy_project_v2
-Golang rewrite of scrapy_project_v1 (Python. This project scrapes Estonian IT-sector job offers and posts them.
+# Estonian tech job scraper
+Golang rewrite of scrapy_project_v1 (Python)
+This project scrapes Estonian IT-sector job offers and posts them.
 
 ## Dependencies
 - go
@@ -8,7 +9,7 @@ Golang rewrite of scrapy_project_v1 (Python. This project scrapes Estonian IT-se
 - just
 - chrome (for chromedp)
 
-## Setup and run for dev
+## Setup and run example for dev
 ```shell
 # install dependencies for golang
 go mod tidy
