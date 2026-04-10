@@ -6,7 +6,7 @@ type Notifier interface {
 	Notify(messages []string) error
 }
 
-type stdOutNotifier struct {}
+type stdOutNotifier struct{}
 
 func NewStdOutNotifier() *stdOutNotifier {
 	return &stdOutNotifier{}
