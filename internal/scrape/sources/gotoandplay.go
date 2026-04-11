@@ -7,8 +7,8 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	"github.com/Rebne/scrapy_project_v2/internal/errors"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
-	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 )
 
 const gotoAndPlayURL string = "https://play.ee/jobs/"
@@ -51,7 +51,7 @@ func (gs *gotoAndPlayScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	jobs := doc.Find("div.card__content")
 	if jobs.Length() == 0 {
-		return nil, shared.ErrNoJobsFound
+		return nil, errors.ErrNoJobsFound
 	}
 
 	result := make([]domain.Job, 0)

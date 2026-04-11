@@ -7,6 +7,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	"github.com/Rebne/scrapy_project_v2/internal/errors"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
@@ -59,7 +60,7 @@ func (cs *codeborneScraper) parseJobs(html string) ([]domain.Job, error) {
 	jobs := doc.Find("div.job-card")
 
 	if jobs.Length() == 0 {
-		return nil, shared.ErrNoJobsFound
+		return nil, errors.ErrNoJobsFound
 	}
 
 	jobs.Each(func(i int, job *goquery.Selection) {

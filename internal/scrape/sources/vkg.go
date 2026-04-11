@@ -8,6 +8,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	internalerrors "github.com/Rebne/scrapy_project_v2/internal/errors"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
@@ -65,7 +66,7 @@ func (vs *vkgScraper) parseJobs(html string) ([]domain.Job, error) {
 	location := strings.TrimSpace(container.Find("span.location").First().Text())
 	titles := container.Find("article h2")
 	if titles.Length() == 0 {
-		return nil, shared.ErrNoJobsFound
+		return nil, internalerrors.ErrNoJobsFound
 	}
 
 	result := make([]domain.Job, 0)

@@ -8,6 +8,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	internalerrors "github.com/Rebne/scrapy_project_v2/internal/errors"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 )
@@ -57,7 +58,7 @@ func (ts *taltechScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	rows = rows.Slice(1, goquery.ToEnd)
 	if rows.Length() == 0 {
-		return nil, shared.ErrNoJobsFound
+		return nil, internalerrors.ErrNoJobsFound
 	}
 
 	result := make([]domain.Job, 0)

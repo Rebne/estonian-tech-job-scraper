@@ -9,8 +9,8 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	internalerrors "github.com/Rebne/scrapy_project_v2/internal/errors"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
-	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 )
 
 const helmesURL string = "https://www.helmes.com/career/"
@@ -78,7 +78,7 @@ func (hs *helmesScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	jobLinks := targetContainer.Find("li a")
 	if jobLinks.Length() == 0 {
-		return nil, shared.ErrNoJobsFound
+		return nil, internalerrors.ErrNoJobsFound
 	}
 
 	result := make([]domain.Job, 0)
@@ -100,7 +100,7 @@ func (hs *helmesScraper) parseJobs(html string) ([]domain.Job, error) {
 	})
 
 	if len(result) == 0 {
-		return nil, shared.ErrNoJobsFound
+		return nil, internalerrors.ErrNoJobsFound
 	}
 
 	return result, nil

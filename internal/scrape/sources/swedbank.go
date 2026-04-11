@@ -8,6 +8,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	"github.com/Rebne/scrapy_project_v2/internal/errors"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
@@ -57,7 +58,7 @@ func (ss *swedbankScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	jobs := doc.Find("ul#jobs_list_container li")
 	if jobs.Length() == 0 {
-		return nil, shared.ErrNoJobsFound
+		return nil, errors.ErrNoJobsFound
 	}
 
 	locationRegex := regexp.MustCompile(`(?i)Tallinn|Tartu|Multiple`)

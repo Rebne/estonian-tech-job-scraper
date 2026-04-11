@@ -3,14 +3,11 @@ package shared
 import (
 	"context"
 	"encoding/json"
-	"errors"
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
-
-var ErrNoJobsFound = errors.New("no jobs found")
 
 func FilterJobs(jobs []domain.Job, filterChain jobfilter.JobFilterChain) []domain.Job {
 	var result []domain.Job
