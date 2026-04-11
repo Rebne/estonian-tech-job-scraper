@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	internalerrors "github.com/Rebne/scrapy_project_v2/internal/errors"
 	"github.com/Rebne/scrapy_project_v2/internal/repository/sqlc/jobs"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
@@ -14,6 +15,7 @@ import (
 
 	apisources "github.com/Rebne/scrapy_project_v2/internal/scrape/sources/api"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobformatter"
+	"github.com/Rebne/scrapy_project_v2/pkg/logger"
 	"github.com/Rebne/scrapy_project_v2/pkg/notifier"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -38,7 +40,7 @@ type runnerOptions struct {
 	devMode bool
 }
 
-type scrapeFunc func(context.Context, []scrape.Scraper) ([]domain.Job, error)
+type scrapeFunc func(context.Context, []scrape.Scraper) []domain.Job
 
 func NewRunner(config Config) (Runner, error) {
 	var runner runner
@@ -129,45 +131,45 @@ func (r *runner) addScraper(scraper scrape.Scraper) {
 }
 
 func (r *runner) Run(ctx context.Context) error {
-	scrapedJobs, scrapeErr := r.scrapeFunc(ctx, r.scrapers)
-	var runErr error
+	scrapedJobs := r.scrapeFunc(ctx, r.scrapers)
+	var err error
 	// in devmode notify all jobs, no persistence
 	if r.options.devMode {
 		var messages []string
 		for _, job := range scrapedJobs {
 			messages = append(messages, r.formatter.MustFormatJob(job))
 		}
-		runErr = r.notifier.Notify(messages)
+		err = r.notifier.Notify(messages)
 	} else {
-		runErr = r.persistAndNotify(ctx, scrapedJobs)
+		err = r.persistAndNotify(ctx, scrapedJobs)
 	}
 
-	return errors.Join(scrapeErr, runErr)
+	return err
 }
 
-func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) ([]domain.Job, error) {
+func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
+	slog := logger.Logger(ctx)
 	result := make([]domain.Job, 0)
-	scrapeErrors := make([]error, 0)
 	for _, scraper := range scrapers {
 		jobs, err := scraper.GetJobs(ctx)
 		if err != nil {
-			scrapeErrors = append(scrapeErrors, fmt.Errorf("scraper %q failed: %w", scraper.Name(), err))
+			if errors.Is(err, internalerrors.ErrNoJobsFound) {
+				slog.Warn("no jobs found", "source", scraper.Name())
+				continue
+			}
+			slog.Error(fmt.Sprintf("scraping source %s failed", scraper.Name()), "err", err)
 			continue
 		}
 		result = append(result, jobs...)
 	}
 
-	if len(scrapeErrors) > 0 {
-		return result, errors.Join(scrapeErrors...)
-	}
-
-	return result, nil
+	return result
 }
 
-func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) ([]domain.Job, error) {
+func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
 	result := make([]domain.Job, 0)
 	var mu sync.Mutex
-	scrapeErrors := make([]error, 0)
+	slog := logger.Logger(ctx)
 
 	var wg sync.WaitGroup
 	for _, scraper := range scrapers {
@@ -175,9 +177,11 @@ func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) ([]domain.Job, 
 		wg.Go(func() {
 			scrapedJobs, err := scraper.GetJobs(ctx)
 			if err != nil {
-				mu.Lock()
-				scrapeErrors = append(scrapeErrors, fmt.Errorf("scraper %q failed: %w", scraper.Name(), err))
-				mu.Unlock()
+				if errors.Is(err, internalerrors.ErrNoJobsFound) {
+					slog.Warn("no jobs found", "source", scraper.Name())
+					return
+				}
+				slog.Error(fmt.Sprintf("scraping source %s failed", scraper.Name()), "err", err)
 				return
 			}
 
@@ -188,11 +192,7 @@ func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) ([]domain.Job, 
 	}
 	wg.Wait()
 
-	if len(scrapeErrors) > 0 {
-		return result, errors.Join(scrapeErrors...)
-	}
-
-	return result, nil
+	return result
 }
 
 func (r *runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job) error {
