@@ -16,7 +16,6 @@ func main() {
 	if err != nil {
 		log.Fatal("building config failed: ", err)
 	}
-	config.Async = *async
 
 	runner, err := app.NewRunner(config)
 	if err != nil {
