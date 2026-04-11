@@ -4,8 +4,10 @@ import (
 	"context"
 	"flag"
 	"log"
+	"log/slog"
 
 	"github.com/Rebne/scrapy_project_v2/internal/app"
+	"github.com/Rebne/scrapy_project_v2/pkg/logger"
 )
 
 func main() {
@@ -23,8 +25,12 @@ func main() {
 	}
 	defer runner.Close()
 
-	err = runner.Run(context.Background())
+	bufLogger := logger.NewBufferedLogger(slog.LevelError)
+
+	ctx := logger.ContextWithLogger(context.Background(), bufLogger.Logger)
+
+	err = runner.Run(ctx)
 	if err != nil {
-		log.Printf("errors: %v", err)
+		bufLogger.Error("runner failed", "err", err)
 	}
 }
