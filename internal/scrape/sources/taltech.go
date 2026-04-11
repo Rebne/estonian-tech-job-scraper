@@ -57,7 +57,7 @@ func (ts *taltechScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	rows = rows.Slice(1, goquery.ToEnd)
 	if rows.Length() == 0 {
-		return nil, errors.New("taltech document missing job rows")
+		return nil, shared.ErrNoJobsFound
 	}
 
 	result := make([]domain.Job, 0)

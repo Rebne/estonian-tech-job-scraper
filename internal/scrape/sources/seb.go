@@ -2,13 +2,13 @@ package sources
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 )
 
 const sebURL string = "https://jobs.eu.lever.co/seb?location=Tallinn&commitment=Data%20%26%20IT"
@@ -51,7 +51,7 @@ func (ss *sebScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	jobs := doc.Find("div.posting")
 	if jobs.Length() == 0 {
-		return nil, errors.New("seb document missing jobs")
+		return nil, shared.ErrNoJobsFound
 	}
 
 	result := make([]domain.Job, 0)

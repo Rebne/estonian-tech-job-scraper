@@ -65,7 +65,7 @@ func (vs *vkgScraper) parseJobs(html string) ([]domain.Job, error) {
 	location := strings.TrimSpace(container.Find("span.location").First().Text())
 	titles := container.Find("article h2")
 	if titles.Length() == 0 {
-		return nil, errors.New("vkg document missing job titles")
+		return nil, shared.ErrNoJobsFound
 	}
 
 	result := make([]domain.Job, 0)

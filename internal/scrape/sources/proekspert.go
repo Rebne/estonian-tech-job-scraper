@@ -2,7 +2,6 @@ package sources
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -57,7 +56,7 @@ func (ps *proekspertScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	jobs := doc.Find(".job-positions__items a")
 	if jobs.Length() == 0 {
-		return nil, errors.New("proekspert document missing jobs")
+		return nil, shared.ErrNoJobsFound
 	}
 
 	result := make([]domain.Job, 0)

@@ -2,7 +2,6 @@ package sources
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -60,7 +59,7 @@ func (ps *playtechScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	jobs := doc.Find("a.job-item")
 	if jobs.Length() == 0 {
-		return nil, errors.New("playtech document missing jobs")
+		return nil, shared.ErrNoJobsFound
 	}
 
 	locationRegex := regexp.MustCompile(`(?i)Estonia`)

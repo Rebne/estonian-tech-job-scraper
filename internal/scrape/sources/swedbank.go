@@ -2,7 +2,6 @@ package sources
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -58,7 +57,7 @@ func (ss *swedbankScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	jobs := doc.Find("ul#jobs_list_container li")
 	if jobs.Length() == 0 {
-		return nil, errors.New("swedbank document missing jobs")
+		return nil, shared.ErrNoJobsFound
 	}
 
 	locationRegex := regexp.MustCompile(`(?i)Tallinn|Tartu|Multiple`)

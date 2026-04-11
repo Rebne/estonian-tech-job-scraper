@@ -2,7 +2,6 @@ package sources
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -57,7 +56,7 @@ func (ws *wiseScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	jobs := doc.Find(".attrax-vacancy-tile")
 	if jobs.Length() == 0 {
-		return nil, errors.New("wise document missing jobs")
+		return nil, shared.ErrNoJobsFound
 	}
 
 	result := make([]domain.Job, 0)

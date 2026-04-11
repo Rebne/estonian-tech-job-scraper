@@ -58,6 +58,10 @@ func (cs *codeborneScraper) parseJobs(html string) ([]domain.Job, error) {
 	result := make([]domain.Job, 0)
 	jobs := doc.Find("div.job-card")
 
+	if jobs.Length() == 0 {
+		return nil, shared.ErrNoJobsFound
+	}
+
 	jobs.Each(func(i int, job *goquery.Selection) {
 		title := strings.TrimSpace(job.Find("div.font-bold").First().Text())
 		location := strings.TrimSpace(job.Find("div div.text-lg").First().Text())

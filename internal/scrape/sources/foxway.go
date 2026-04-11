@@ -2,7 +2,6 @@ package sources
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -10,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 )
 
 const foxwayURL string = "https://jobs.foxway.com/jobs"
@@ -52,7 +52,7 @@ func (fs *foxwayScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	jobs := doc.Find("#jobs_list_container li")
 	if jobs.Length() == 0 {
-		return nil, errors.New("foxway document missing jobs")
+		return nil, shared.ErrNoJobsFound
 	}
 
 	locationRegex := regexp.MustCompile(`(?i)Estonia|Tartu`)

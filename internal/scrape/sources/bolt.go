@@ -2,7 +2,6 @@ package sources
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -54,7 +53,7 @@ func (bs *boltScraper) parseJobs(html string) ([]domain.Job, error) {
 
 	jobs := doc.Find(`div[class*="Accordion_AccordionItem"]`)
 	if jobs.Length() == 0 {
-		return nil, errors.New("bolt document missing jobs")
+		return nil, shared.ErrNoJobsFound
 	}
 
 	result := make([]domain.Job, 0)
