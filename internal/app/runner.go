@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"sync"
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
@@ -66,10 +65,6 @@ func NewRunner(config Config) (Runner, error) {
 	}
 
 	runner.formatter = jobformatter.NewTelegramHTMLFormatter()
-
-	if config.ProxyURL == "" {
-		log.Printf("warning: %s is not set, continuing without proxy", ProxyURL)
-	}
 
 	httpRetriever, err := fetcher.NewHTTPFetcher(fetcher.HTTPFetcherOptions{})
 	if err != nil {
