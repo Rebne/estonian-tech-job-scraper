@@ -36,19 +36,6 @@ func NewTelegramHTMLFormatter() *TelegramHTMLFormatter {
 	return &TelegramHTMLFormatter{tmpl: template.Must(template.New("telegram-job").Parse(telegramJobTemplate))}
 }
 
-func (f *TelegramHTMLFormatter) FormatJobs(jobs []domain.Job) ([]string, error) {
-	messages := make([]string, 0, len(jobs))
-	for _, job := range jobs {
-		formatted, err := f.FormatJob(job)
-		if err != nil {
-			return nil, fmt.Errorf("failed to format jobs: %w", err)
-		}
-		messages = append(messages, formatted)
-	}
-
-	return messages, nil
-}
-
 func (f *TelegramHTMLFormatter) FormatJob(job domain.Job) (string, error) {
 	return f.formatJob(job)
 }
