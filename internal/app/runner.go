@@ -132,17 +132,19 @@ func (r *runner) addScraper(scraper scrape.Scraper) {
 
 func (r *runner) Run(ctx context.Context) error {
 	scrapedJobs := r.scrapeFunc(ctx, r.scrapers)
-	var err error
 	// in devmode notify all jobs, no persistence
 	if r.options.devMode {
 		var messages []string
 		for _, job := range scrapedJobs {
 			messages = append(messages, r.formatter.MustFormatJob(job))
 		}
-		err = r.notifier.Notify(messages)
-	} else {
-		err = r.persistAndNotify(ctx, scrapedJobs)
+		err := r.notifier.Notify(messages)
+		if err != nil {
+			panic(err)
+		}
 	}
+
+	err := r.persistAndNotify(ctx, scrapedJobs)
 
 	return err
 }
