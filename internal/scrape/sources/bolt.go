@@ -22,9 +22,12 @@ type boltScraper struct {
 }
 
 func NewBoltScraper(retriever fetcher.HTMLRetriever) *boltScraper {
+	filterChain := jobfilter.NewJobFilterChain().
+		Add(jobfilter.TitleExcludeFilter{})
 	return &boltScraper{
 		url:       boltURL,
 		retriever: retriever,
+		filters:   filterChain,
 	}
 }
 
