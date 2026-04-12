@@ -136,7 +136,7 @@ func (r *runner) Run(ctx context.Context) {
 
 	ctx = logger.ContextWithLogger(context.Background(), bufLog.Logger)
 
-	bufLog.Info("Running scraper")
+	bufLog.Info("running scraper")
 	scrapedJobs := r.scrapeFunc(ctx, r.scrapers)
 	// in devmode notify all jobs, no persistence
 	if r.options.devMode {
@@ -154,7 +154,7 @@ func (r *runner) Run(ctx context.Context) {
 	if err != nil {
 		bufLog.Error("runner failed", "err", err)
 	}
-	bufLog.Info("Scraper finished")
+	bufLog.Info("scraper finished")
 }
 
 func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
