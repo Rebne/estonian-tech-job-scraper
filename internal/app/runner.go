@@ -181,6 +181,10 @@ func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
 				slog.Warn("no jobs found", "source", scraper.Name())
 				continue
 			}
+			if errors.Is(err, internalerrors.ErrPlaywrightTimeout) {
+				slog.Warn("playwright timed out", "source", scraper.Name())
+				continue
+			}
 			slog.Error(fmt.Sprintf("scraping source %s failed", scraper.Name()), "err", err)
 			continue
 		}
@@ -203,6 +207,10 @@ func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
 			if err != nil {
 				if errors.Is(err, internalerrors.ErrNoJobsFound) {
 					slog.Warn("no jobs found", "source", scraper.Name())
+					return
+				}
+				if errors.Is(err, internalerrors.ErrPlaywrightTimeout) {
+					slog.Warn("playwright timed out", "source", scraper.Name())
 					return
 				}
 				slog.Error(fmt.Sprintf("scraping source %s failed", scraper.Name()), "err", err)

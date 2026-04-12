@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	internalerrors "github.com/Rebne/scrapy_project_v2/internal/errors"
 	"github.com/playwright-community/playwright-go"
 )
 
@@ -132,6 +133,9 @@ func (pf *PlaywrightFetcher) Fetch(ctx context.Context, targetURL string) (strin
 		Timeout:   playwright.Float(playwrightFetchTimeoutMilliseconds),
 	})
 	if err != nil {
+		if errors.Is(err, playwright.ErrTimeout) {
+			return "", fmt.Errorf("%w: %w", internalerrors.ErrPlaywrightTimeout, err)
+		}
 		if ctxErr := ctx.Err(); ctxErr != nil {
 			return "", ctxErr
 		}
