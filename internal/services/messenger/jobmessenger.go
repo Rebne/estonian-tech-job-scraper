@@ -1,6 +1,8 @@
 package messenger
 
 import (
+	"fmt"
+
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobformatter"
 	"github.com/Rebne/scrapy_project_v2/pkg/notifier"
@@ -25,7 +27,7 @@ func (jm *JobMessenger) Send(jobs []domain.Job) error {
 	}
 	err := jm.notifier.Notify(messages)
 	if err != nil {
-		return err
+		return fmt.Errorf("job messenger failed to notify: %w", err)
 	}
 	return nil
 }
