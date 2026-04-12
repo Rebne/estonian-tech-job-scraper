@@ -29,8 +29,10 @@ func main() {
 
 	ctx := logger.ContextWithLogger(context.Background(), bufLogger.Logger)
 
+	bufLogger.Info("Running scraper")
 	err = runner.Run(ctx)
 	if err != nil {
 		bufLogger.Error("runner failed", "err", err)
 	}
+	bufLogger.Info("Scraper finished")
 }
