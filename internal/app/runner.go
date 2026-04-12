@@ -32,6 +32,7 @@ type runner struct {
 	db           *pgxpool.Pool
 	repo         *jobs.Queries
 	jobMessenger *messenger.JobMessenger
+	logMessenger *messenger.LogMessenger
 	retrievers   []fetcher.HTMLRetriever
 	scrapeFunc   scrapeFunc
 	options      runnerOptions
@@ -59,6 +60,11 @@ func NewRunner(config Config) (Runner, error) {
 		runner.jobMessenger = messenger.NewJobMessenger(
 			notifier.NewTelegramNotifier(config.TelegramBotToken, config.TelegramChatID),
 			jobformatter.NewTelegramHTMLFormatter(),
+		)
+		runner.logMessenger = messenger.NewLogMessenger(
+			notifier.NewTelegramNotifier(
+				config.TelegramBotToken, config.TelegramChatID, notifier.WithThreadID(config.TelegramLogThreadID),
+			),
 		)
 	} else {
 		runner.jobMessenger = messenger.NewJobMessenger(
@@ -155,6 +161,12 @@ func (r *runner) Run(ctx context.Context) {
 		bufLog.Error("runner failed", "err", err)
 	}
 	bufLog.Info("scraper finished")
+	if r.logMessenger != nil {
+		err := r.logMessenger.Send(bufLog.Read())
+		if err != nil {
+			bufLog.Error("log messenger failed to save", "err", err)
+		}
+	}
 }
 
 func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
