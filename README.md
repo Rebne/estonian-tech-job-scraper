@@ -37,6 +37,8 @@ just async
 - `DATABASE_URL`
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
+- `TELEGRAM_LOG_THREAD_ID` (optional)
+  - telegram forum topic/thread id for log messages in prod
 - `MODE`
   - dev: only print to console, no database
   - test: only print to console, database (this value can actually be anything)
