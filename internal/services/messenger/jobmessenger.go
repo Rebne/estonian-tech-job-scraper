@@ -11,10 +11,10 @@ type JobMessenger struct {
 	notifier  notifier.Notifier
 }
 
-func NewJobMessenger(n notifier.Notifier, f jobformatter.JobFormatter) *JobMessenger {
+func NewJobMessenger(notifier notifier.Notifier, formatter jobformatter.JobFormatter) *JobMessenger {
 	return &JobMessenger{
-		notifier:  n,
-		formatter: f,
+		notifier:  notifier,
+		formatter: formatter,
 	}
 }
 
