@@ -27,6 +27,20 @@ func NewTelegramNotifier(botToken, chatID string) *telegramNotifier {
 	}
 }
 
+type telegramNotifierOption func(*telegramNotifier)
+
+func NewTelegramNotifier(botToken, chatID string, options ...telegramNotifierOption) *telegramNotifier {
+	notifier := &telegramNotifier{
+		botToken: botToken,
+		chatID:   chatID,
+	}
+
+	for _, opt := range options {
+		opt(notifier)
+	}
+	return notifier
+}
+
 func (tn *telegramNotifier) Notify(messagesHTML []string) error {
 	if len(messagesHTML) == 0 {
 		return ErrNoMessages
