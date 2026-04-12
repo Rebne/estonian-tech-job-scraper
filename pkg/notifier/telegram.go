@@ -18,12 +18,12 @@ var ErrNoMessages = errors.New("messages are empty")
 type telegramNotifier struct {
 	botToken string
 	chatID   string
+	threadID string
 }
 
-func NewTelegramNotifier(botToken, chatID string) *telegramNotifier {
-	return &telegramNotifier{
-		botToken,
-		chatID,
+func WithThreadID(threadID string) telegramNotifierOption {
+	return func(notifier *telegramNotifier) {
+		notifier.threadID = threadID
 	}
 }
 
@@ -70,6 +70,9 @@ func (tn *telegramNotifier) sendTelegramMessage(message string) error {
 	data.Set("chat_id", tn.chatID)
 	data.Set("parse_mode", "HTML")
 	data.Set("text", message)
+	if tn.threadID != "" {
+		data.Set("message_thread_id", tn.threadID)
+	}
 
 	resp, err := http.Post(
 		endpoint,
