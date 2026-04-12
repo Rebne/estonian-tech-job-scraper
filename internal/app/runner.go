@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"sync"
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
@@ -21,7 +22,7 @@ import (
 )
 
 type Runner interface {
-	Run(context.Context) error
+	Run(context.Context)
 	Close() error
 }
 
@@ -130,7 +131,12 @@ func (r *runner) addScraper(scraper scrape.Scraper) {
 	r.scrapers = append(r.scrapers, scraper)
 }
 
-func (r *runner) Run(ctx context.Context) error {
+func (r *runner) Run(ctx context.Context) {
+	bufLog := logger.NewBufferedLogger(slog.LevelInfo)
+
+	ctx = logger.ContextWithLogger(context.Background(), bufLog.Logger)
+
+	bufLog.Info("Running scraper")
 	scrapedJobs := r.scrapeFunc(ctx, r.scrapers)
 	// in devmode notify all jobs, no persistence
 	if r.options.devMode {
@@ -145,8 +151,10 @@ func (r *runner) Run(ctx context.Context) error {
 	}
 
 	err := r.persistAndNotify(ctx, scrapedJobs)
-
-	return err
+	if err != nil {
+		bufLog.Error("runner failed", "err", err)
+	}
+	bufLog.Info("Scraper finished")
 }
 
 func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {

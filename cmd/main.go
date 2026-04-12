@@ -4,10 +4,8 @@ import (
 	"context"
 	"flag"
 	"log"
-	"log/slog"
 
 	"github.com/Rebne/scrapy_project_v2/internal/app"
-	"github.com/Rebne/scrapy_project_v2/pkg/logger"
 )
 
 func main() {
@@ -25,14 +23,5 @@ func main() {
 	}
 	defer runner.Close()
 
-	bufLogger := logger.NewBufferedLogger(slog.LevelInfo)
-
-	ctx := logger.ContextWithLogger(context.Background(), bufLogger.Logger)
-
-	bufLogger.Info("Running scraper")
-	err = runner.Run(ctx)
-	if err != nil {
-		bufLogger.Error("runner failed", "err", err)
-	}
-	bufLogger.Info("Scraper finished")
+	runner.Run(context.Background())
 }
