@@ -22,6 +22,7 @@ const TelegramChatID EnvironmentVariable = "TELEGRAM_CHAT_ID"
 const Mode EnvironmentVariable = "MODE"
 const ProxyURL EnvironmentVariable = "PROXY_URL"
 const ChromeExecutablePath EnvironmentVariable = "CHROME_EXECUTABLE_PATH"
+const TelegramLogThreadID EnvironmentVariable = "TELEGRAM_LOG_THREAD_ID"
 
 type Config struct {
 	DatabaseURL          string
@@ -29,6 +30,7 @@ type Config struct {
 	TelegramChatID       string
 	ProxyURL             string
 	ChromeExecutablePath string
+	TelegramLogThreadID  string
 	Mode                 ModeOption
 	Async                bool
 }
@@ -42,6 +44,7 @@ func BuildConfig(async bool) (Config, error) {
 	telegramChatID := os.Getenv(string(TelegramChatID))
 	proxyURL := strings.TrimSpace(os.Getenv(string(ProxyURL)))
 	chromeExecutablePath := strings.TrimSpace(os.Getenv(string(ChromeExecutablePath)))
+	telegramLogThreadID := strings.TrimSpace(os.Getenv(string(TelegramLogThreadID)))
 	mode, err := StringToModeOption(os.Getenv(string(Mode)))
 	if err != nil {
 		unsetVariables = append(unsetVariables, string(Mode))
@@ -66,6 +69,7 @@ func BuildConfig(async bool) (Config, error) {
 		TelegramChatID:       telegramChatID,
 		ProxyURL:             proxyURL,
 		ChromeExecutablePath: chromeExecutablePath,
+		TelegramLogThreadID:  telegramLogThreadID,
 		Mode:                 mode,
 		Async:                async,
 	}, nil
