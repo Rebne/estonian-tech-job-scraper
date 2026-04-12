@@ -3,6 +3,7 @@ package notifier
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -85,7 +86,11 @@ func (tn *telegramNotifier) sendTelegramMessage(message string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("telegram API returned status: %s", resp.Status)
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to parse body from telegram API response: %w", err)
+		}
+		return fmt.Errorf("telegram API returned status: %s, body: %s", resp.Status, string(body))
 	}
 
 	return nil
