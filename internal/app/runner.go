@@ -61,11 +61,13 @@ func NewRunner(config Config) (Runner, error) {
 			notifier.NewTelegramNotifier(config.TelegramBotToken, config.TelegramChatID),
 			jobformatter.NewTelegramHTMLFormatter(),
 		)
-		runner.logMessenger = messenger.NewLogMessenger(
-			notifier.NewTelegramNotifier(
-				config.TelegramBotToken, config.TelegramChatID, notifier.WithThreadID(config.TelegramLogThreadID),
-			),
-		)
+		if config.TelegramLogThreadID != "" {
+			runner.logMessenger = messenger.NewLogMessenger(
+				notifier.NewTelegramNotifier(
+					config.TelegramBotToken, config.TelegramChatID, notifier.WithThreadID(config.TelegramLogThreadID),
+				),
+			)
+		}
 	} else {
 		runner.jobMessenger = messenger.NewJobMessenger(
 			notifier.NewStdOutNotifier(),
