@@ -16,6 +16,7 @@ import (
 
 	apisources "github.com/Rebne/scrapy_project_v2/internal/scrape/sources/api"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobformatter"
+	"github.com/Rebne/scrapy_project_v2/internal/services/messenger"
 	"github.com/Rebne/scrapy_project_v2/pkg/logger"
 	"github.com/Rebne/scrapy_project_v2/pkg/notifier"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -27,14 +28,13 @@ type Runner interface {
 }
 
 type runner struct {
-	scrapers   []scrape.Scraper
-	db         *pgxpool.Pool
-	repo       *jobs.Queries
-	formatter  jobformatter.JobFormatter
-	notifier   notifier.Notifier
-	retrievers []fetcher.HTMLRetriever
-	scrapeFunc scrapeFunc
-	options    runnerOptions
+	scrapers     []scrape.Scraper
+	db           *pgxpool.Pool
+	repo         *jobs.Queries
+	jobMessenger *messenger.JobMessenger
+	retrievers   []fetcher.HTMLRetriever
+	scrapeFunc   scrapeFunc
+	options      runnerOptions
 }
 
 type runnerOptions struct {
@@ -56,9 +56,15 @@ func NewRunner(config Config) (Runner, error) {
 	}
 
 	if config.Mode.IsProd() {
-		runner.notifier = notifier.NewTelegramNotifier(config.TelegramBotToken, config.TelegramChatID)
+		runner.jobMessenger = messenger.NewJobMessenger(
+			notifier.NewTelegramNotifier(config.TelegramBotToken, config.TelegramChatID),
+			jobformatter.NewTelegramHTMLFormatter(),
+		)
 	} else {
-		runner.notifier = notifier.NewStdOutNotifier()
+		runner.jobMessenger = messenger.NewJobMessenger(
+			notifier.NewStdOutNotifier(),
+			jobformatter.NewTelegramHTMLFormatter(),
+		)
 	}
 
 	if config.Async {
@@ -66,8 +72,6 @@ func NewRunner(config Config) (Runner, error) {
 	} else {
 		runner.scrapeFunc = scrapeSync
 	}
-
-	runner.formatter = jobformatter.NewTelegramHTMLFormatter()
 
 	httpRetriever, err := fetcher.NewHTTPFetcher(fetcher.HTTPFetcherOptions{})
 	if err != nil {
@@ -140,11 +144,7 @@ func (r *runner) Run(ctx context.Context) {
 	scrapedJobs := r.scrapeFunc(ctx, r.scrapers)
 	// in devmode notify all jobs, no persistence
 	if r.options.devMode {
-		var messages []string
-		for _, job := range scrapedJobs {
-			messages = append(messages, r.formatter.MustFormatJob(job))
-		}
-		err := r.notifier.Notify(messages)
+		err := r.jobMessenger.Send(scrapedJobs)
 		if err != nil {
 			panic(err)
 		}
@@ -220,7 +220,7 @@ func (r *runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job)
 		existingKeys[string(existingJob.JobHash)] = true
 	}
 
-	messages := make([]string, 0)
+	filteredJobs := []domain.Job{}
 	for _, scrapedJob := range scrapedJobs {
 		key := string(scrapedJob.Hash())
 		if _, exists := existingKeys[key]; exists {
@@ -236,7 +236,7 @@ func (r *runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job)
 		}
 
 		existingKeys[key] = true
-		messages = append(messages, r.formatter.MustFormatJob(scrapedJob))
+		filteredJobs = append(filteredJobs, scrapedJob)
 	}
 
 	// Delete job if it is no longer scraped from the web
@@ -246,11 +246,11 @@ func (r *runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job)
 		}
 	}
 
-	if len(messages) == 0 {
+	if len(filteredJobs) == 0 {
 		return nil
 	}
 
-	if err := r.notifier.Notify(messages); err != nil {
+	if err := r.jobMessenger.Send(filteredJobs); err != nil {
 		return fmt.Errorf("sending notifications failed: %w", err)
 	}
 
