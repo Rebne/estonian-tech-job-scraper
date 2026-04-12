@@ -25,7 +25,7 @@ func main() {
 	}
 	defer runner.Close()
 
-	bufLogger := logger.NewBufferedLogger(slog.LevelError)
+	bufLogger := logger.NewBufferedLogger(slog.LevelInfo)
 
 	ctx := logger.ContextWithLogger(context.Background(), bufLogger.Logger)
 
