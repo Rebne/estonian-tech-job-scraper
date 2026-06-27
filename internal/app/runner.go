@@ -238,6 +238,7 @@ func (r *runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job)
 	}
 
 	existingKeys := make(map[string]bool, len(existingJobs))
+	newKeys := make(map[string]bool)
 	for _, existingJob := range existingJobs {
 		existingKeys[string(existingJob.JobHash)] = true
 	}
@@ -257,13 +258,13 @@ func (r *runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job)
 			return fmt.Errorf("inserting job failed: %w", err)
 		}
 
-		existingKeys[key] = true
+		newKeys[key] = true
 		filteredJobs = append(filteredJobs, scrapedJob)
 	}
 
 	// Delete job if it is no longer scraped from the web
 	for _, job := range existingJobs {
-		if exists := existingKeys[string(job.JobHash)]; !exists {
+		if exists := newKeys[string(job.JobHash)]; !exists {
 			r.repo.DeleteJob(ctx, job.JobHash)
 		}
 	}
