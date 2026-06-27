@@ -177,6 +177,7 @@ func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) []scrape.ScrapeR
 	for _, scraper := range scrapers {
 		scrapeResult, err := scraper.GetJobs(ctx)
 		if err != nil {
+			result = append(result, scrape.ScrapeResult{Source: scraper.Name(), Status: scrape.ScrapeStatusFailed})
 			if errors.Is(err, internalerrors.ErrNoJobsFound) {
 				slog.Warn("no jobs found", "source", scraper.Name())
 				continue
@@ -205,6 +206,9 @@ func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) []scrape.Scrape
 		wg.Go(func() {
 			scrapeResult, err := scraper.GetJobs(ctx)
 			if err != nil {
+				mu.Lock()
+				result = append(result, scrape.ScrapeResult{Source: scraper.Name(), Status: scrape.ScrapeStatusFailed})
+				mu.Unlock()
 				if errors.Is(err, internalerrors.ErrNoJobsFound) {
 					slog.Warn("no jobs found", "source", scraper.Name())
 					return
@@ -238,15 +242,22 @@ func (r *runner) persistAndNotify(ctx context.Context, scrapeResults []scrape.Sc
 	}
 
 	existingKeys := make(map[string]bool, len(existingJobs))
-	newKeys := make(map[string]bool)
+	successfulScrapedKeys := make(map[string]bool)
+	successfulSources := make(map[string]bool)
 	for _, existingJob := range existingJobs {
 		existingKeys[string(existingJob.JobHash)] = true
 	}
 
 	filteredJobs := []domain.Job{}
 	for _, scrapeResult := range scrapeResults {
+		if scrapeResult.Status != scrape.ScrapeStatusSuccess {
+			continue
+		}
+
+		successfulSources[scrapeResult.Source] = true
 		for _, scrapedJob := range scrapeResult.Jobs {
 			key := string(scrapedJob.Hash())
+			successfulScrapedKeys[key] = true
 			if _, exists := existingKeys[key]; exists {
 				continue
 			}
@@ -259,14 +270,17 @@ func (r *runner) persistAndNotify(ctx context.Context, scrapeResults []scrape.Sc
 				return fmt.Errorf("inserting job failed: %w", err)
 			}
 
-			newKeys[key] = true
 			filteredJobs = append(filteredJobs, scrapedJob)
 		}
 	}
 
 	// Delete job if it is no longer scraped from the web
 	for _, job := range existingJobs {
-		if exists := newKeys[string(job.JobHash)]; !exists {
+		if !successfulSources[job.Page] {
+			continue
+		}
+
+		if exists := successfulScrapedKeys[string(job.JobHash)]; !exists {
 			r.repo.DeleteJob(ctx, job.JobHash)
 		}
 	}
