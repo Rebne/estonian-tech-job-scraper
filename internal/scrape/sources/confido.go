@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	internalerrors "github.com/Rebne/scrapy_project_v2/internal/errors"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
@@ -38,18 +39,18 @@ func (cs *confidoScraper) Name() string {
 	return "confido"
 }
 
-func (cs *confidoScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (cs *confidoScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	html, err := cs.retriever.Fetch(ctx, cs.url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve Confido html: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve Confido html: %w", err)
 	}
 
 	jobs, err := cs.parseJobs(html)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse Confido jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to parse Confido jobs: %w", err)
 	}
 
-	return shared.FilterJobs(jobs, cs.filters), nil
+	return scrape.ScrapeResult{Source: cs.Name(), Jobs: shared.FilterJobs(jobs, cs.filters), Status: scrape.ScrapeStatusSuccess}, nil
 }
 
 func (cs *confidoScraper) parseJobs(html string) ([]domain.Job, error) {

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
@@ -65,10 +66,10 @@ func (gs *gliaScraper) Name() string {
 	return "glia"
 }
 
-func (gs *gliaScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (gs *gliaScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	var payload gliaDepartmentsResponse
 	if err := shared.FetchJSON(ctx, gs.retriever, gs.url, &payload); err != nil {
-		return nil, fmt.Errorf("failed to retrieve Glia jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve Glia jobs: %w", err)
 	}
 
 	result := make([]domain.Job, 0)
@@ -97,5 +98,5 @@ func (gs *gliaScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		}
 	}
 
-	return shared.FilterJobs(result, gs.filters), nil
+	return scrape.ScrapeResult{Source: gs.Name(), Jobs: shared.FilterJobs(result, gs.filters), Status: scrape.ScrapeStatusSuccess}, nil
 }

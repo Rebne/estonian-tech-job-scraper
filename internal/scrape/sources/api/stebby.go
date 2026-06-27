@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 )
@@ -39,14 +40,14 @@ func (ss *stebbyScraper) Name() string {
 	return "stebby"
 }
 
-func (ss *stebbyScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (ss *stebbyScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	var payload stebbyResponse
 	if err := shared.FetchJSON(ctx, ss.retriever, ss.url, &payload); err != nil {
-		return nil, fmt.Errorf("failed to retrieve Stebby jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve Stebby jobs: %w", err)
 	}
 
 	if payload.Meta.TotalCount == 0 {
-		return []domain.Job{}, nil
+		return scrape.ScrapeResult{Source: ss.Name(), Jobs: []domain.Job{}, Status: scrape.ScrapeStatusSuccess}, nil
 	}
 
 	result := make([]domain.Job, 0)
@@ -67,5 +68,5 @@ func (ss *stebbyScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		)
 	}
 
-	return result, nil
+	return scrape.ScrapeResult{Source: ss.Name(), Jobs: result, Status: scrape.ScrapeStatusSuccess}, nil
 }

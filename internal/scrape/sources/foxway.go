@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/errors"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 )
 
@@ -30,18 +31,18 @@ func (fs *foxwayScraper) Name() string {
 	return "foxway"
 }
 
-func (fs *foxwayScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (fs *foxwayScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	html, err := fs.retriever.Fetch(ctx, fs.url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve Foxway html: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve Foxway html: %w", err)
 	}
 
 	jobs, err := fs.parseJobs(html)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse Foxway jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to parse Foxway jobs: %w", err)
 	}
 
-	return jobs, nil
+	return scrape.ScrapeResult{Source: fs.Name(), Jobs: jobs, Status: scrape.ScrapeStatusSuccess}, nil
 }
 
 func (fs *foxwayScraper) parseJobs(html string) ([]domain.Job, error) {

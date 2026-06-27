@@ -8,6 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/errors"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
@@ -35,18 +36,18 @@ func (ps *proekspertScraper) Name() string {
 	return "proekspert"
 }
 
-func (ps *proekspertScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (ps *proekspertScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	html, err := ps.retriever.Fetch(ctx, ps.url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve Proekspert html: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve Proekspert html: %w", err)
 	}
 
 	jobs, err := ps.parseJobs(html)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse Proekspert jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to parse Proekspert jobs: %w", err)
 	}
 
-	return shared.FilterJobs(jobs, ps.filters), nil
+	return scrape.ScrapeResult{Source: ps.Name(), Jobs: shared.FilterJobs(jobs, ps.filters), Status: scrape.ScrapeStatusSuccess}, nil
 }
 
 func (ps *proekspertScraper) parseJobs(html string) ([]domain.Job, error) {

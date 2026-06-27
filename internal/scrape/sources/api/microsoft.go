@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
@@ -48,10 +49,10 @@ func (ms *microsoftScraper) Name() string {
 	return "microsoft"
 }
 
-func (ms *microsoftScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (ms *microsoftScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	var payload microsoftSearchResponse
 	if err := shared.FetchJSON(ctx, ms.retriever, ms.url, &payload); err != nil {
-		return nil, fmt.Errorf("failed to retrieve Microsoft jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve Microsoft jobs: %w", err)
 	}
 
 	result := make([]domain.Job, 0)
@@ -83,5 +84,5 @@ func (ms *microsoftScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		)
 	}
 
-	return result, nil
+	return scrape.ScrapeResult{Source: ms.Name(), Jobs: result, Status: scrape.ScrapeStatusSuccess}, nil
 }

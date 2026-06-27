@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	internalerrors "github.com/Rebne/scrapy_project_v2/internal/errors"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
@@ -38,18 +39,18 @@ func (vs *vkgScraper) Name() string {
 	return "vkg"
 }
 
-func (vs *vkgScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (vs *vkgScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	html, err := vs.retriever.Fetch(ctx, vs.url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve VKG html: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve VKG html: %w", err)
 	}
 
 	jobs, err := vs.parseJobs(html)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse VKG jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to parse VKG jobs: %w", err)
 	}
 
-	return shared.FilterJobs(jobs, vs.filters), nil
+	return scrape.ScrapeResult{Source: vs.Name(), Jobs: shared.FilterJobs(jobs, vs.filters), Status: scrape.ScrapeStatusSuccess}, nil
 }
 
 func (vs *vkgScraper) parseJobs(html string) ([]domain.Job, error) {

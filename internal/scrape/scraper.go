@@ -8,7 +8,9 @@ import (
 
 type Scraper interface {
 	Name() string
-	GetJobs(context.Context) ([]domain.Job, error)
+	GetJobs(context.Context) (ScrapeResult, error)
+}
+
 type ScrapeStatus string
 
 const (

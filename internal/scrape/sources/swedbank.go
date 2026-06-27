@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/errors"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
@@ -36,18 +37,18 @@ func (ss *swedbankScraper) Name() string {
 	return "swedbank"
 }
 
-func (ss *swedbankScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (ss *swedbankScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	html, err := ss.retriever.Fetch(ctx, ss.url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve Swedbank html: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve Swedbank html: %w", err)
 	}
 
 	jobs, err := ss.parseJobs(html)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse Swedbank jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to parse Swedbank jobs: %w", err)
 	}
 
-	return shared.FilterJobs(jobs, ss.filters), nil
+	return scrape.ScrapeResult{Source: ss.Name(), Jobs: shared.FilterJobs(jobs, ss.filters), Status: scrape.ScrapeStatusSuccess}, nil
 }
 
 func (ss *swedbankScraper) parseJobs(html string) ([]domain.Job, error) {

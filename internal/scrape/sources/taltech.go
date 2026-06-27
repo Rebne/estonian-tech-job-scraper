@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	internalerrors "github.com/Rebne/scrapy_project_v2/internal/errors"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 )
@@ -31,18 +32,18 @@ func (ts *taltechScraper) Name() string {
 	return "taltech"
 }
 
-func (ts *taltechScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (ts *taltechScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	html, err := ts.retriever.Fetch(ctx, ts.url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve TalTech html: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve TalTech html: %w", err)
 	}
 
 	jobs, err := ts.parseJobs(html)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse TalTech jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to parse TalTech jobs: %w", err)
 	}
 
-	return jobs, nil
+	return scrape.ScrapeResult{Source: ts.Name(), Jobs: jobs, Status: scrape.ScrapeStatusSuccess}, nil
 }
 
 func (ts *taltechScraper) parseJobs(html string) ([]domain.Job, error) {

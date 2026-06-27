@@ -42,7 +42,7 @@ type runnerOptions struct {
 	devMode bool
 }
 
-type scrapeFunc func(context.Context, []scrape.Scraper) []domain.Job
+type scrapeFunc func(context.Context, []scrape.Scraper) []scrape.ScrapeResult
 
 func NewRunner(config Config) (Runner, error) {
 	var runner runner
@@ -149,16 +149,16 @@ func (r *runner) Run(ctx context.Context) {
 	ctx = logger.ContextWithLogger(context.Background(), bufLog.Logger)
 
 	bufLog.Info("running scraper")
-	scrapedJobs := r.scrapeFunc(ctx, r.scrapers)
+	scrapeResults := r.scrapeFunc(ctx, r.scrapers)
 	// in devmode notify all jobs, no persistence
 	if r.options.devMode {
-		err := r.jobMessenger.Send(scrapedJobs)
+		err := r.jobMessenger.Send(flattenSuccessfulJobs(scrapeResults))
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	err := r.persistAndNotify(ctx, scrapedJobs)
+	err := r.persistAndNotify(ctx, scrapeResults)
 	if err != nil {
 		bufLog.Error("runner failed", "err", err)
 	}
@@ -171,11 +171,11 @@ func (r *runner) Run(ctx context.Context) {
 	}
 }
 
-func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
+func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) []scrape.ScrapeResult {
 	slog := logger.Logger(ctx)
-	result := make([]domain.Job, 0)
+	result := make([]scrape.ScrapeResult, 0, len(scrapers))
 	for _, scraper := range scrapers {
-		jobs, err := scraper.GetJobs(ctx)
+		scrapeResult, err := scraper.GetJobs(ctx)
 		if err != nil {
 			if errors.Is(err, internalerrors.ErrNoJobsFound) {
 				slog.Warn("no jobs found", "source", scraper.Name())
@@ -188,14 +188,14 @@ func scrapeSync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
 			slog.Error(fmt.Sprintf("scraping source %s failed", scraper.Name()), "err", err)
 			continue
 		}
-		result = append(result, jobs...)
+		result = append(result, scrapeResult)
 	}
 
 	return result
 }
 
-func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
-	result := make([]domain.Job, 0)
+func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) []scrape.ScrapeResult {
+	result := make([]scrape.ScrapeResult, 0, len(scrapers))
 	var mu sync.Mutex
 	slog := logger.Logger(ctx)
 
@@ -203,7 +203,7 @@ func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
 	for _, scraper := range scrapers {
 		scraper := scraper
 		wg.Go(func() {
-			scrapedJobs, err := scraper.GetJobs(ctx)
+			scrapeResult, err := scraper.GetJobs(ctx)
 			if err != nil {
 				if errors.Is(err, internalerrors.ErrNoJobsFound) {
 					slog.Warn("no jobs found", "source", scraper.Name())
@@ -218,7 +218,7 @@ func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
 			}
 
 			mu.Lock()
-			result = append(result, scrapedJobs...)
+			result = append(result, scrapeResult)
 			mu.Unlock()
 		})
 	}
@@ -227,8 +227,8 @@ func scrapeAsync(ctx context.Context, scrapers []scrape.Scraper) []domain.Job {
 	return result
 }
 
-func (r *runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job) error {
-	if len(scrapedJobs) == 0 {
+func (r *runner) persistAndNotify(ctx context.Context, scrapeResults []scrape.ScrapeResult) error {
+	if len(scrapeResults) == 0 {
 		return nil
 	}
 
@@ -244,22 +244,24 @@ func (r *runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job)
 	}
 
 	filteredJobs := []domain.Job{}
-	for _, scrapedJob := range scrapedJobs {
-		key := string(scrapedJob.Hash())
-		if _, exists := existingKeys[key]; exists {
-			continue
-		}
+	for _, scrapeResult := range scrapeResults {
+		for _, scrapedJob := range scrapeResult.Jobs {
+			key := string(scrapedJob.Hash())
+			if _, exists := existingKeys[key]; exists {
+				continue
+			}
 
-		if err := r.repo.InsertJob(ctx, jobs.InsertJobParams{
-			JobHash: scrapedJob.Hash(),
-			Page:    scrapedJob.Page(),
-			Title:   scrapedJob.Title(),
-		}); err != nil {
-			return fmt.Errorf("inserting job failed: %w", err)
-		}
+			if err := r.repo.InsertJob(ctx, jobs.InsertJobParams{
+				JobHash: scrapedJob.Hash(),
+				Page:    scrapedJob.Page(),
+				Title:   scrapedJob.Title(),
+			}); err != nil {
+				return fmt.Errorf("inserting job failed: %w", err)
+			}
 
-		newKeys[key] = true
-		filteredJobs = append(filteredJobs, scrapedJob)
+			newKeys[key] = true
+			filteredJobs = append(filteredJobs, scrapedJob)
+		}
 	}
 
 	// Delete job if it is no longer scraped from the web
@@ -278,6 +280,19 @@ func (r *runner) persistAndNotify(ctx context.Context, scrapedJobs []domain.Job)
 	}
 
 	return nil
+}
+
+func flattenSuccessfulJobs(scrapeResults []scrape.ScrapeResult) []domain.Job {
+	jobs := make([]domain.Job, 0)
+	for _, scrapeResult := range scrapeResults {
+		if scrapeResult.Status != scrape.ScrapeStatusSuccess {
+			continue
+		}
+
+		jobs = append(jobs, scrapeResult.Jobs...)
+	}
+
+	return jobs
 }
 
 func newDB(url string) (*pgxpool.Pool, error) {

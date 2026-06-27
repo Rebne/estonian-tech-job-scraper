@@ -10,6 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	internalerrors "github.com/Rebne/scrapy_project_v2/internal/errors"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 )
 
@@ -31,18 +32,18 @@ func (hs *helmesScraper) Name() string {
 	return "helmes"
 }
 
-func (hs *helmesScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (hs *helmesScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	html, err := hs.retriever.Fetch(ctx, hs.url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve Helmes html: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve Helmes html: %w", err)
 	}
 
 	jobs, err := hs.parseJobs(html)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse Helmes jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to parse Helmes jobs: %w", err)
 	}
 
-	return jobs, nil
+	return scrape.ScrapeResult{Source: hs.Name(), Jobs: jobs, Status: scrape.ScrapeStatusSuccess}, nil
 }
 
 func (hs *helmesScraper) parseJobs(html string) ([]domain.Job, error) {

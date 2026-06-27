@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
@@ -47,10 +48,10 @@ func (cs *cveeScraper) Name() string {
 	return "cvee"
 }
 
-func (cs *cveeScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (cs *cveeScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	var payload cveeSearchResponse
 	if err := shared.FetchJSON(ctx, cs.retriever, cs.url, &payload); err != nil {
-		return nil, fmt.Errorf("failed to retrieve CVEE jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve CVEE jobs: %w", err)
 	}
 
 	result := make([]domain.Job, 0)
@@ -76,5 +77,5 @@ func (cs *cveeScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
 		)
 	}
 
-	return shared.FilterJobs(result, cs.filters), nil
+	return scrape.ScrapeResult{Source: cs.Name(), Jobs: shared.FilterJobs(result, cs.filters), Status: scrape.ScrapeStatusSuccess}, nil
 }

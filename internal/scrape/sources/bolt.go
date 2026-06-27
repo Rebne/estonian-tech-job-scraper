@@ -8,6 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/errors"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
 	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
@@ -35,18 +36,18 @@ func (bs *boltScraper) Name() string {
 	return "bolt"
 }
 
-func (bs *boltScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (bs *boltScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	html, err := bs.retriever.Fetch(ctx, bs.url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve Bolt html: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve Bolt html: %w", err)
 	}
 
 	jobs, err := bs.parseJobs(html)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse Bolt jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to parse Bolt jobs: %w", err)
 	}
 
-	return shared.FilterJobs(jobs, bs.filters), nil
+	return scrape.ScrapeResult{Source: bs.Name(), Jobs: shared.FilterJobs(jobs, bs.filters), Status: scrape.ScrapeStatusSuccess}, nil
 }
 
 func (bs *boltScraper) parseJobs(html string) ([]domain.Job, error) {

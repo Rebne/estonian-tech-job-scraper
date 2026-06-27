@@ -8,6 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/errors"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 )
 
@@ -29,18 +30,18 @@ func (gs *gotoAndPlayScraper) Name() string {
 	return "gotoandplay"
 }
 
-func (gs *gotoAndPlayScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (gs *gotoAndPlayScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	html, err := gs.retriever.Fetch(ctx, gs.url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve GotoAndPlay html: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve GotoAndPlay html: %w", err)
 	}
 
 	jobs, err := gs.parseJobs(html)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse GotoAndPlay jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to parse GotoAndPlay jobs: %w", err)
 	}
 
-	return jobs, nil
+	return scrape.ScrapeResult{Source: gs.Name(), Jobs: jobs, Status: scrape.ScrapeStatusSuccess}, nil
 }
 
 func (gs *gotoAndPlayScraper) parseJobs(html string) ([]domain.Job, error) {

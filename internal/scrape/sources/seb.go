@@ -8,6 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Rebne/scrapy_project_v2/internal/domain"
 	"github.com/Rebne/scrapy_project_v2/internal/errors"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
 )
 
@@ -29,18 +30,18 @@ func (ss *sebScraper) Name() string {
 	return "seb"
 }
 
-func (ss *sebScraper) GetJobs(ctx context.Context) ([]domain.Job, error) {
+func (ss *sebScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, error) {
 	html, err := ss.retriever.Fetch(ctx, ss.url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve SEB html: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to retrieve SEB html: %w", err)
 	}
 
 	jobs, err := ss.parseJobs(html)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse SEB jobs: %w", err)
+		return scrape.ScrapeResult{}, fmt.Errorf("failed to parse SEB jobs: %w", err)
 	}
 
-	return jobs, nil
+	return scrape.ScrapeResult{Source: ss.Name(), Jobs: jobs, Status: scrape.ScrapeStatusSuccess}, nil
 }
 
 func (ss *sebScraper) parseJobs(html string) ([]domain.Job, error) {
