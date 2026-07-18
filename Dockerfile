@@ -17,7 +17,7 @@ COPY go.mod go.sum ./
 
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
-RUN go run github.com/playwright-community/playwright-go/cmd/playwright@v0.5700.1 install --with-deps chromium
+RUN go run github.com/mxschmitt/playwright-go/cmd/playwright@v0.6100.0    install --with-deps chromium
 RUN mkdir -p /playwright-driver && \
     cp -R /root/.cache/ms-playwright-go/*/node /playwright-driver/node && \
     cp -R /root/.cache/ms-playwright-go/*/package /playwright-driver/package

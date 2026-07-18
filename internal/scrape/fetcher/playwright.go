@@ -9,7 +9,7 @@ import (
 	"time"
 
 	internalerrors "github.com/Rebne/scrapy_project_v2/internal/errors"
-	"github.com/playwright-community/playwright-go"
+	"github.com/mxschmitt/playwright-go"
 )
 
 const playwrightFetchTimeoutMilliseconds = 60_000
