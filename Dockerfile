@@ -35,10 +35,15 @@ RUN set-o pipefail && \
     apt-get install -y --no-install-recommends doppler && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /out/scrapy-project-v2 ./scrapy-project-v2
-COPY --from=playwright /ms-playwright /ms-playwright
-COPY --from=playwright /playwright-driver /playwright-driver
+RUN groupadd --system appgroup && \
+    useradd --system --no-create-home --gid appgroup appuser
+
+COPY --from=builder --chown=appuser:appgroup /out/scrapy-project-v2 ./scrapy-project-v2
+COPY --from=playwright --chown=appuser:appgroup /ms-playwright /ms-playwright
+COPY --from=playwright --chown=appuser:appgroup /playwright-driver /playwright-driver
 
 ENV CHROME_EXECUTABLE_PATH=/usr/bin/chromium \
     PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
     PLAYWRIGHT_DRIVER_PATH=/playwright-driver
+
+USER appuser
