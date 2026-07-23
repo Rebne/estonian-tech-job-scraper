@@ -35,7 +35,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --system appgroup && \
-    useradd --system --no-create-home --gid appgroup appuser
+    useradd --system --create-home --home-dir /home/appuser --gid appgroup appuser
 
 COPY --from=builder --chown=appuser:appgroup /out/scrapy-project-v2 ./scrapy-project-v2
 COPY --from=playwright --chown=appuser:appgroup /ms-playwright /ms-playwright
