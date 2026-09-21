@@ -44,7 +44,7 @@ just async
 - `TELEGRAM_LOG_THREAD_ID` (optional)
     - telegram forum topic/thread id for log messages in prod
 - `MODE`
-    - dev: only print to console, no database
+    - dev: only print to console, no database (does not run migrations)
     - test: only print to console, database (this value can actually be anything)
     - prod: send to telegram, database
 - `PROXY_URL` (optional)
