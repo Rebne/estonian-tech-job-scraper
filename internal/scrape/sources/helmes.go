@@ -12,6 +12,8 @@ import (
 	internalerrors "github.com/Rebne/scrapy_project_v2/internal/errors"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape"
 	"github.com/Rebne/scrapy_project_v2/internal/scrape/fetcher"
+	"github.com/Rebne/scrapy_project_v2/internal/scrape/sources/shared"
+	"github.com/Rebne/scrapy_project_v2/internal/services/jobfilter"
 )
 
 const helmesURL string = "https://www.helmes.com/career/"
@@ -19,12 +21,15 @@ const helmesURL string = "https://www.helmes.com/career/"
 type helmesScraper struct {
 	url       string
 	retriever fetcher.HTMLRetriever
+	filters   jobfilter.JobFilterChain
 }
 
 func NewHelmesScraper(retriever fetcher.HTMLRetriever) *helmesScraper {
 	return &helmesScraper{
 		url:       helmesURL,
 		retriever: retriever,
+		filters: jobfilter.NewJobFilterChain().
+			Add(jobfilter.LocationEstoniaFilter{}),
 	}
 }
 
@@ -43,7 +48,7 @@ func (hs *helmesScraper) GetJobs(ctx context.Context) (scrape.ScrapeResult, erro
 		return scrape.ScrapeResult{}, fmt.Errorf("failed to parse Helmes jobs: %w", err)
 	}
 
-	return scrape.ScrapeResult{Source: hs.Name(), Jobs: jobs, Status: scrape.ScrapeStatusSuccess}, nil
+	return scrape.ScrapeResult{Source: hs.Name(), Jobs: shared.FilterJobs(jobs, hs.filters), Status: scrape.ScrapeStatusSuccess}, nil
 }
 
 func (hs *helmesScraper) parseJobs(html string) ([]domain.Job, error) {
