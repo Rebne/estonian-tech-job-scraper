@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -57,41 +56,26 @@ func (hs *helmesScraper) parseJobs(html string) ([]domain.Job, error) {
 		return nil, err
 	}
 
-	containers := doc.Find(".job-offers__city")
-	if containers.Length() == 0 {
-		return nil, errors.New("helmes document missing job city containers")
+	listing := doc.Find("section.helmes-jobs-td")
+	if listing.Length() == 0 {
+		return nil, errors.New("helmes document missing jobs listing")
 	}
 
-	locationRegex := regexp.MustCompile(`(?i)Estonia|Tartu`)
-	var targetContainer *goquery.Selection
-	location := ""
-
-	containers.EachWithBreak(func(_ int, container *goquery.Selection) bool {
-		header := container.Find("h4").First()
-		candidateLocation := strings.TrimSpace(header.Text())
-		if candidateLocation == "" || !locationRegex.MatchString(candidateLocation) {
-			return true
-		}
-
-		targetContainer = container
-		location = candidateLocation
-		return false
-	})
-
-	if targetContainer == nil {
-		return nil, errors.New("helmes estonian job container not found")
-	}
-
-	jobLinks := targetContainer.Find("li a")
-	if jobLinks.Length() == 0 {
-		return nil, internalerrors.ErrNoJobsFound
+	jobRows := listing.Find("a.hj-row")
+	if jobRows.Length() == 0 {
+		return nil, errors.New("helmes jobs listing missing job rows")
 	}
 
 	result := make([]domain.Job, 0)
-	jobLinks.Each(func(_ int, jobLink *goquery.Selection) {
-		title := strings.TrimSpace(jobLink.Text())
+	jobRows.Each(func(_ int, jobRow *goquery.Selection) {
+		title := strings.TrimSpace(jobRow.Find(".hj-role").First().Text())
 		if title == "" {
 			return
+		}
+		location := strings.TrimSpace(jobRow.Find(".hj-loc").First().Text())
+		url := strings.TrimSpace(jobRow.AttrOr("href", ""))
+		if url == "" {
+			url = helmesURL
 		}
 
 		result = append(result, domain.
@@ -100,7 +84,7 @@ func (hs *helmesScraper) parseJobs(html string) ([]domain.Job, error) {
 			WithPage(hs.Name()).
 			WithLocation(location).
 			WithHashFrom(domain.HashFieldTitle, domain.HashFieldPage).
-			WithURL(helmesURL).
+			WithURL(url).
 			Build(),
 		)
 	})
