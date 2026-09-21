@@ -17,10 +17,11 @@ func main() {
 		log.Fatal("building config failed: ", err)
 	}
 
-	if err := app.RunMigrations(config.DatabaseURL); err != nil {
-		log.Fatal("failed to run database migrations:", err)
+	if !config.Mode.IsDev() {
+		if err := app.RunMigrations(config.DatabaseURL); err != nil {
+			log.Fatal("failed to run database migrations:", err)
+		}
 	}
-
 	runner, err := app.NewRunner(config)
 	if err != nil {
 		log.Fatal("initializing runner failed: ", err)
