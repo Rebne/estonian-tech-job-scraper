@@ -156,6 +156,7 @@ func (r *runner) Run(ctx context.Context) {
 		if err != nil {
 			panic(err)
 		}
+		return
 	}
 
 	err := r.persistAndNotify(ctx, scrapeResults)
