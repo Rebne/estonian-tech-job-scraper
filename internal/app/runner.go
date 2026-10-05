@@ -282,7 +282,10 @@ func (r *runner) persistAndNotify(ctx context.Context, scrapeResults []scrape.Sc
 		}
 
 		if exists := successfulScrapedKeys[string(job.JobHash)]; !exists {
-			r.repo.DeleteJob(ctx, job.JobHash)
+			err := r.repo.DeleteJob(ctx, job.JobHash)
+			if err != nil {
+				return fmt.Errorf("failed to delete expired job: %w", err)
+			}
 		}
 	}
 
