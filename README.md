@@ -18,7 +18,7 @@ This project scrapes Estonian IT-sector job offers and posts them.
 go mod tidy
 
 # install playwright dependecies (browsers mostly)
-go run github.com/mxschmitt/playwright-go/cmd/playwright@v0.6100.0 install --with-deps
+go run github.com/mxschmitt/playwright-go/cmd/playwright@v0.6201.1 install --with-deps
 
 # create .env file
 cp .env.example .env
