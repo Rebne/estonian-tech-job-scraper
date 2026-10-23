@@ -7,7 +7,9 @@ WHERE
 
 -- name: InsertJob :exec
 INSERT INTO jobs (job_hash, page, title)
-VALUES($1, $2, $3);
+VALUES($1, $2, $3)
+ON CONFLICT (job_hash) WHERE deleted = FALSE
+DO NOTHING;
 
 -- name: DeleteJob :exec
 UPDATE jobs
