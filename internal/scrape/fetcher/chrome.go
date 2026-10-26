@@ -102,11 +102,13 @@ func (cf *ChromeFetcher) Fetch(ctx context.Context, url string) (string, error) 
 	}()
 
 	var html string
-	err := chromedp.Run(runCtx,
+	err := chromedp.Do(runCtx,
 		chromedp.Navigate(url),
-		chromedp.WaitVisible("body", chromedp.ByQuery),
-		chromedp.OuterHTML("html", &html),
+		chromedp.WaitVisible(chromedp.CSS("body")),
 	)
+	if err == nil {
+		html, err = chromedp.Run(runCtx, chromedp.OuterHTML(chromedp.CSS("html")))
+	}
 	if err != nil {
 		if ctxErr := ctx.Err(); ctxErr != nil {
 			return "", ctxErr
