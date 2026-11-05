@@ -8,7 +8,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.20.1
 	github.com/jackc/pgx/v5 v5.12.0
 	github.com/joho/godotenv v1.5.1
-	github.com/mxschmitt/playwright-go v0.6201.1
+	github.com/mxschmitt/playwright-go v0.6401.0
 	golang.org/x/net v0.62.0
 )
 
